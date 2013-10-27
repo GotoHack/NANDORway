@@ -1,0 +1,10 @@
+D:\PS3\Dev\Projects\Teensy\NANDORway\Windows\NANDORway\bin\Debug\NANDORway.exe
+D:\PS3\Dev\Projects\Teensy\NANDORway\Windows\NANDORway\bin\Debug\NANDORway.pdb
+D:\PS3\Dev\Projects\Teensy\NANDORway\Windows\NANDORway\bin\Debug\LibUsbDotNet.dll
+D:\PS3\Dev\Projects\Teensy\NANDORway\Windows\NANDORway\bin\Debug\LibUsbDotNet.xml
+D:\PS3\Dev\Projects\Teensy\NANDORway\Windows\NANDORway\obj\Debug\NANDORway.csprojResolveAssemblyReference.cache
+D:\PS3\Dev\Projects\Teensy\NANDORway\Windows\NANDORway\obj\Debug\NANDORway.Main.resources
+D:\PS3\Dev\Projects\Teensy\NANDORway\Windows\NANDORway\obj\Debug\NANDORway.Properties.Resources.resources
+D:\PS3\Dev\Projects\Teensy\NANDORway\Windows\NANDORway\obj\Debug\NANDORway.csproj.GenerateResource.Cache
+D:\PS3\Dev\Projects\Teensy\NANDORway\Windows\NANDORway\obj\Debug\NANDORway.exe
+D:\PS3\Dev\Projects\Teensy\NANDORway\Windows\NANDORway\obj\Debug\NANDORway.pdb
