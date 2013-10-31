@@ -28,6 +28,7 @@ AVR_APP_PATH :=$$$AVR_APP_PATH$$$
 QUOTE := "
 ADDITIONAL_DEPENDENCIES:=
 OUTPUT_FILE_DEP:=
+LIB_DEP:=
 
 # Every subdirectory with source files must be described here
 SUBDIRS :=  \
@@ -248,7 +249,6 @@ nand.o \
 nor.o \
 NANDORway.o
 
-
 OBJS_AS_ARGS +=  \
 Descriptors.o \
 ecc-sw.o \
@@ -319,7 +319,6 @@ nand.o \
 nor.o \
 NANDORway.o
 
-
 C_DEPS +=  \
 Descriptors.d \
 ecc-sw.d \
@@ -383,12 +382,12 @@ LUFA/Drivers/USB/Core/XMEGA/Template/Template_Endpoint_Control_W.d \
 LUFA/Drivers/USB/Core/XMEGA/Template/Template_Endpoint_RW.d \
 LUFA/Drivers/USB/Core/XMEGA/USBController_XMEGA.d \
 LUFA/Drivers/USB/Core/XMEGA/USBInterrupt_XMEGA.d \
+LUFA/Platform/UC3/Exception.d \
 LUFA/Platform/UC3/InterruptManagement.d \
 nand-gpio.d \
 nand.d \
 nor.d \
 NANDORway.d
-
 
 C_DEPS_AS_ARGS +=  \
 Descriptors.d \
@@ -453,12 +452,12 @@ LUFA/Drivers/USB/Core/XMEGA/Template/Template_Endpoint_Control_W.d \
 LUFA/Drivers/USB/Core/XMEGA/Template/Template_Endpoint_RW.d \
 LUFA/Drivers/USB/Core/XMEGA/USBController_XMEGA.d \
 LUFA/Drivers/USB/Core/XMEGA/USBInterrupt_XMEGA.d \
+LUFA/Platform/UC3/Exception.d \
 LUFA/Platform/UC3/InterruptManagement.d \
 nand-gpio.d \
 nand.d \
 nor.d \
 NANDORway.d
-
 
 OUTPUT_FILE_PATH +=NANDORway.elf
 
@@ -467,6 +466,8 @@ OUTPUT_FILE_PATH_AS_ARGS +=NANDORway.elf
 ADDITIONAL_DEPENDENCIES:=
 
 OUTPUT_FILE_DEP:= ./makedep.mk
+
+LIB_DEP+= 
 
 # AVR32/GNU C Compiler
 
@@ -606,93 +607,108 @@ OUTPUT_FILE_DEP:= ./makedep.mk
 
 ./%.o: .././%.c
 	@echo Building file: $<
-	@echo Invoking: AVR/GNU C Compiler : (AVR_8_bit_GNU_Toolchain_3.4.0_663) 4.6.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.0.65\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fpack-struct -fshort-enums -Wall -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -mmcu=at90usb1286   -o"$@" "$<" 
+	@echo Invoking: AVR/GNU C Compiler : 3.4.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.1002\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -Wall -mmcu=at90usb1286 -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<"
 	@echo Finished building: $<
+	
 
 LUFA/Drivers/Board/%.o: ../LUFA/Drivers/Board/%.c
 	@echo Building file: $<
-	@echo Invoking: AVR/GNU C Compiler : (AVR_8_bit_GNU_Toolchain_3.4.0_663) 4.6.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.0.65\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fpack-struct -fshort-enums -Wall -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -mmcu=at90usb1286   -o"$@" "$<" 
+	@echo Invoking: AVR/GNU C Compiler : 3.4.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.1002\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -Wall -mmcu=at90usb1286 -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<"
 	@echo Finished building: $<
+	
 
 LUFA/Drivers/Peripheral/AVR8/%.o: ../LUFA/Drivers/Peripheral/AVR8/%.c
 	@echo Building file: $<
-	@echo Invoking: AVR/GNU C Compiler : (AVR_8_bit_GNU_Toolchain_3.4.0_663) 4.6.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.0.65\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fpack-struct -fshort-enums -Wall -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -mmcu=at90usb1286   -o"$@" "$<" 
+	@echo Invoking: AVR/GNU C Compiler : 3.4.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.1002\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -Wall -mmcu=at90usb1286 -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<"
 	@echo Finished building: $<
+	
 
 LUFA/Drivers/Peripheral/XMEGA/%.o: ../LUFA/Drivers/Peripheral/XMEGA/%.c
 	@echo Building file: $<
-	@echo Invoking: AVR/GNU C Compiler : (AVR_8_bit_GNU_Toolchain_3.4.0_663) 4.6.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.0.65\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fpack-struct -fshort-enums -Wall -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -mmcu=at90usb1286   -o"$@" "$<" 
+	@echo Invoking: AVR/GNU C Compiler : 3.4.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.1002\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -Wall -mmcu=at90usb1286 -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<"
 	@echo Finished building: $<
+	
 
 LUFA/Drivers/USB/Class/Common/%.o: ../LUFA/Drivers/USB/Class/Common/%.c
 	@echo Building file: $<
-	@echo Invoking: AVR/GNU C Compiler : (AVR_8_bit_GNU_Toolchain_3.4.0_663) 4.6.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.0.65\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fpack-struct -fshort-enums -Wall -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -mmcu=at90usb1286   -o"$@" "$<" 
+	@echo Invoking: AVR/GNU C Compiler : 3.4.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.1002\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -Wall -mmcu=at90usb1286 -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<"
 	@echo Finished building: $<
+	
 
 LUFA/Drivers/USB/Class/Device/%.o: ../LUFA/Drivers/USB/Class/Device/%.c
 	@echo Building file: $<
-	@echo Invoking: AVR/GNU C Compiler : (AVR_8_bit_GNU_Toolchain_3.4.0_663) 4.6.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.0.65\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fpack-struct -fshort-enums -Wall -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -mmcu=at90usb1286   -o"$@" "$<" 
+	@echo Invoking: AVR/GNU C Compiler : 3.4.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.1002\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -Wall -mmcu=at90usb1286 -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<"
 	@echo Finished building: $<
+	
 
 LUFA/Drivers/USB/Class/Host/%.o: ../LUFA/Drivers/USB/Class/Host/%.c
 	@echo Building file: $<
-	@echo Invoking: AVR/GNU C Compiler : (AVR_8_bit_GNU_Toolchain_3.4.0_663) 4.6.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.0.65\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fpack-struct -fshort-enums -Wall -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -mmcu=at90usb1286   -o"$@" "$<" 
+	@echo Invoking: AVR/GNU C Compiler : 3.4.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.1002\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -Wall -mmcu=at90usb1286 -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<"
 	@echo Finished building: $<
+	
 
 LUFA/Drivers/USB/Core/AVR8/%.o: ../LUFA/Drivers/USB/Core/AVR8/%.c
 	@echo Building file: $<
-	@echo Invoking: AVR/GNU C Compiler : (AVR_8_bit_GNU_Toolchain_3.4.0_663) 4.6.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.0.65\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fpack-struct -fshort-enums -Wall -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -mmcu=at90usb1286   -o"$@" "$<" 
+	@echo Invoking: AVR/GNU C Compiler : 3.4.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.1002\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -Wall -mmcu=at90usb1286 -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<"
 	@echo Finished building: $<
+	
 
 LUFA/Drivers/USB/Core/AVR8/Template/%.o: ../LUFA/Drivers/USB/Core/AVR8/Template/%.c
 	@echo Building file: $<
-	@echo Invoking: AVR/GNU C Compiler : (AVR_8_bit_GNU_Toolchain_3.4.0_663) 4.6.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.0.65\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fpack-struct -fshort-enums -Wall -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -mmcu=at90usb1286   -o"$@" "$<" 
+	@echo Invoking: AVR/GNU C Compiler : 3.4.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.1002\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -Wall -mmcu=at90usb1286 -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<"
 	@echo Finished building: $<
+	
 
 LUFA/Drivers/USB/Core/%.o: ../LUFA/Drivers/USB/Core/%.c
 	@echo Building file: $<
-	@echo Invoking: AVR/GNU C Compiler : (AVR_8_bit_GNU_Toolchain_3.4.0_663) 4.6.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.0.65\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fpack-struct -fshort-enums -Wall -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -mmcu=at90usb1286   -o"$@" "$<" 
+	@echo Invoking: AVR/GNU C Compiler : 3.4.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.1002\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -Wall -mmcu=at90usb1286 -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<"
 	@echo Finished building: $<
+	
 
 LUFA/Drivers/USB/Core/UC3/%.o: ../LUFA/Drivers/USB/Core/UC3/%.c
 	@echo Building file: $<
-	@echo Invoking: AVR/GNU C Compiler : (AVR_8_bit_GNU_Toolchain_3.4.0_663) 4.6.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.0.65\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fpack-struct -fshort-enums -Wall -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -mmcu=at90usb1286   -o"$@" "$<" 
+	@echo Invoking: AVR/GNU C Compiler : 3.4.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.1002\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -Wall -mmcu=at90usb1286 -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<"
 	@echo Finished building: $<
+	
 
 LUFA/Drivers/USB/Core/UC3/Template/%.o: ../LUFA/Drivers/USB/Core/UC3/Template/%.c
 	@echo Building file: $<
-	@echo Invoking: AVR/GNU C Compiler : (AVR_8_bit_GNU_Toolchain_3.4.0_663) 4.6.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.0.65\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fpack-struct -fshort-enums -Wall -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -mmcu=at90usb1286   -o"$@" "$<" 
+	@echo Invoking: AVR/GNU C Compiler : 3.4.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.1002\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -Wall -mmcu=at90usb1286 -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<"
 	@echo Finished building: $<
+	
 
 LUFA/Drivers/USB/Core/XMEGA/%.o: ../LUFA/Drivers/USB/Core/XMEGA/%.c
 	@echo Building file: $<
-	@echo Invoking: AVR/GNU C Compiler : (AVR_8_bit_GNU_Toolchain_3.4.0_663) 4.6.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.0.65\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fpack-struct -fshort-enums -Wall -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -mmcu=at90usb1286   -o"$@" "$<" 
+	@echo Invoking: AVR/GNU C Compiler : 3.4.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.1002\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -Wall -mmcu=at90usb1286 -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<"
 	@echo Finished building: $<
+	
 
 LUFA/Drivers/USB/Core/XMEGA/Template/%.o: ../LUFA/Drivers/USB/Core/XMEGA/Template/%.c
 	@echo Building file: $<
-	@echo Invoking: AVR/GNU C Compiler : (AVR_8_bit_GNU_Toolchain_3.4.0_663) 4.6.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.0.65\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fpack-struct -fshort-enums -Wall -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -mmcu=at90usb1286   -o"$@" "$<" 
+	@echo Invoking: AVR/GNU C Compiler : 3.4.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.1002\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -Wall -mmcu=at90usb1286 -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<"
 	@echo Finished building: $<
+	
 
 LUFA/Platform/UC3/%.o: ../LUFA/Platform/UC3/%.c
 	@echo Building file: $<
-	@echo Invoking: AVR/GNU C Compiler : (AVR_8_bit_GNU_Toolchain_3.4.0_663) 4.6.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.0.65\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fpack-struct -fshort-enums -Wall -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"  -mmcu=at90usb1286   -o"$@" "$<" 
+	@echo Invoking: AVR/GNU C Compiler : 3.4.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.1002\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -funsigned-char -funsigned-bitfields -DARCH=ARCH_AVR8 -DF_CPU=8000000UL -DF_USB=16000000UL -DBOARD=BOARD_USER -DUSE_LUFA_CONFIG_HEADER  -I"../Config"  -O3 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -Wall -mmcu=at90usb1286 -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<"
 	@echo Finished building: $<
+	
 
 
 
@@ -701,18 +717,20 @@ LUFA/Platform/UC3/%.o: ../LUFA/Platform/UC3/%.c
 
 
 # AVR32/GNU Assembler
-LUFA/Platform/UC3/Exception.o: ../LUFA/Platform/UC3/Exception.s
+LUFA/Platform/UC3/Exception.o: ../LUFA/Platform/UC3/Exception.S
 	@echo Building file: $<
-	@echo Invoking: AVR32/GNU Assembler : (AVR_8_bit_GNU_Toolchain_3.4.0_663) 4.6.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.0.65\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -Wa,-gdwarf2 -x assembler-with-cpp -c  -mmcu=at90usb1286   -o"$@" "$<"
+	@echo Invoking: AVR32/GNU Assembler : 3.4.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.1002\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE) -Wa,-gdwarf2 -x assembler-with-cpp -c -mmcu=at90usb1286 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<"
 	@echo Finished building: $<
+	
 
 
-LUFA/Platform/UC3/%.o: ../LUFA/Platform/UC3/%.s
+LUFA/Platform/UC3/%.o: ../LUFA/Platform/UC3/%.S
 	@echo Building file: $<
-	@echo Invoking: AVR32/GNU Assembler : (AVR_8_bit_GNU_Toolchain_3.4.0_663) 4.6.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.0.65\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -Wa,-gdwarf2 -x assembler-with-cpp -c  -mmcu=at90usb1286   -o"$@" "$<"
+	@echo Invoking: AVR32/GNU Assembler : 3.4.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.1002\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE) -Wa,-gdwarf2 -x assembler-with-cpp -c -mmcu=at90usb1286 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<"
 	@echo Finished building: $<
+	
 
 
 
@@ -728,13 +746,15 @@ endif
 # All Target
 all: $(OUTPUT_FILE_PATH) $(ADDITIONAL_DEPENDENCIES)
 
-$(OUTPUT_FILE_PATH): $(OBJS) $(USER_OBJS) $(OUTPUT_FILE_DEP)
+$(OUTPUT_FILE_PATH): $(OBJS) $(USER_OBJS) $(OUTPUT_FILE_DEP) $(LIB_DEP)
 	@echo Building target: $@
-	@echo Invoking: AVR/GNU Linker : (AVR_8_bit_GNU_Toolchain_3.4.0_663) 4.6.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.0.65\AVRToolchain\bin\avr-gcc.exe$(QUOTE) -o$(OUTPUT_FILE_PATH_AS_ARGS) $(OBJS_AS_ARGS) $(USER_OBJS) $(LIBS) -Wl,-Map="NANDORway.map" -Wl,--start-group -Wl,-lm  -Wl,--end-group -Wl,--gc-sections  -mmcu=at90usb1286  
+	@echo Invoking: AVR/GNU Linker : 3.4.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.1002\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE) -o$(OUTPUT_FILE_PATH_AS_ARGS) $(OBJS_AS_ARGS) $(USER_OBJS) $(LIBS) -Wl,-Map="NANDORway.map" -Wl,--start-group -Wl,-lm  -Wl,--end-group -Wl,--gc-sections -mmcu=at90usb1286 
 	@echo Finished building target: $@
-	"C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.0.65\AVRToolchain\bin\avr-objcopy.exe" -O ihex -R .eeprom -R .fuse -R .lock -R .signature  "NANDORway.elf" "NANDORway.hex"
-	"C:\Program Files (x86)\Atmel\Atmel Studio 6.0\extensions\Atmel\AVRGCC\3.4.0.65\AVRToolchain\bin\avr-size.exe" "NANDORway.elf"
+	"C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.1002\avr8-gnu-toolchain\bin\avr-objcopy.exe" -O ihex -R .eeprom -R .fuse -R .lock -R .signature  "NANDORway.elf" "NANDORway.hex"
+	"C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.1002\avr8-gnu-toolchain\bin\avr-objcopy.exe" -O srec -R .eeprom -R .fuse -R .lock -R .signature  "NANDORway.elf" "NANDORway.srec"
+	"C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.1002\avr8-gnu-toolchain\bin\avr-size.exe" "NANDORway.elf"
+	
 	
 
 
@@ -743,6 +763,7 @@ $(OUTPUT_FILE_PATH): $(OBJS) $(USER_OBJS) $(OUTPUT_FILE_DEP)
 
 # Other Targets
 clean:
-	-$(RM) $(OBJS_AS_ARGS)$(C_DEPS_AS_ARGS) $(EXECUTABLES) 
-	rm -rf "NANDORway.elf" "NANDORway.a" "NANDORway.hex" "NANDORway.lss" "NANDORway.eep" "NANDORway.map"
+	-$(RM) $(OBJS_AS_ARGS) $(EXECUTABLES)  
+	-$(RM) $(C_DEPS_AS_ARGS)   
+	rm -rf "NANDORway.elf" "NANDORway.a" "NANDORway.hex" "NANDORway.lss" "NANDORway.eep" "NANDORway.map" "NANDORway.srec"
 	

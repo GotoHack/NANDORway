@@ -151,9 +151,9 @@ const USB_Descriptor_String_t PROGMEM ManufacturerString =
  */
 const USB_Descriptor_String_t PROGMEM ProductString =
 {
-	.Header                 = {.Size = USB_STRING_LEN(31), .Type = DTYPE_String},
+	.Header                 = {.Size = USB_STRING_LEN(26), .Type = DTYPE_String},
 
-	.UnicodeString          = L"NORway PS3 Flasher (Custom USB)"
+	.UnicodeString          = L"NANDORway NAND/NOR Flasher"
 };
 
 /** Product serial number string. This is a Unicode string containing the product's serial number
