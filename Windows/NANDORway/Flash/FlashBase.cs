@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Diagnostics;
 
 namespace NANDORway.Flash
@@ -124,7 +121,7 @@ namespace NANDORway.Flash
 				// 'K' = okay, 'T' = timeout error when writing, 'R' = Teensy receive buffer timeout
 				byte res = Read();
 				if (res != 75)
-					Debug.WriteLine("Error: {0:H}", res);
+					Debug.WriteLine(string.Format("Error: {0:H}", res));
 			}
 		}
 

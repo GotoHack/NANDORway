@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Diagnostics;
 
 namespace NANDORway.Flash
@@ -300,7 +297,7 @@ namespace NANDORway.Flash
 						Ping();
 
 						retries -= 1;
-						Debug.WriteLine("({0}. Retry) {1}", WRITE_RETRIES - retries, error_msg);
+						Debug.WriteLine(string.Format("({0}. Retry) {1}", WRITE_RETRIES - retries, error_msg));
 					}
 					else
 						break;
@@ -357,7 +354,7 @@ namespace NANDORway.Flash
 			{
 				address = start + i;
 				oData = ReadSector(address / 2, SECTOR_SIZE);
-				Debug.WriteLine("{0} KB / {1} KB", (i + SECTOR_SIZE) / 1024, data.Length / 1024);
+				Debug.WriteLine(string.Format("{0} KB / {1} KB", (i + SECTOR_SIZE) / 1024, data.Length / 1024));
 
 				Buffer.BlockCopy(data, (int)i, tempData, 0, (int)SECTOR_SIZE);
 				if (ByteArraysEqual(oData, tempData))

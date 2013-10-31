@@ -8,3 +8,6 @@ D:\PS3\Dev\Projects\Teensy\NANDORway\Windows\NANDORway\obj\Debug\NANDORway.Prope
 D:\PS3\Dev\Projects\Teensy\NANDORway\Windows\NANDORway\obj\Debug\NANDORway.csproj.GenerateResource.Cache
 D:\PS3\Dev\Projects\Teensy\NANDORway\Windows\NANDORway\obj\Debug\NANDORway.exe
 D:\PS3\Dev\Projects\Teensy\NANDORway\Windows\NANDORway\obj\Debug\NANDORway.pdb
+C:\Users\Swizzy\GIT\NANDORway\Windows\NANDORway\obj\Debug\NANDORway.exe
+C:\Users\Swizzy\GIT\NANDORway\Windows\NANDORway\obj\Debug\NANDORway.pdb
+C:\Users\Swizzy\GIT\NANDORway\Windows\NANDORway\bin\Debug\NANDORway.exe.config

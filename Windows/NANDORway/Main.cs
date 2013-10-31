@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.Diagnostics;
 
@@ -363,15 +357,15 @@ namespace NANDORway
 			_flashNAND.NANDInformationRefresh((byte)(Flash.NAND.NANDSelect)cmbNANDid.SelectedValue);
 
 			Debug.WriteLine("------------------------------");
-			Debug.WriteLine("MakerCode: 0x{0:X2}", _flashNAND.NANDInformation.ManufacturerCode);
-			Debug.WriteLine("DeviceCode: 0x{0:X2}", _flashNAND.NANDInformation.DeviceCode);
-			Debug.WriteLine("PageSize: {0} bytes", _flashNAND.NANDInformation.PageSize);
-			Debug.WriteLine("SpareSize: {0} bytes", _flashNAND.NANDInformation.SpareSize);
-			Debug.WriteLine("BlockSize: {0} bytes", _flashNAND.NANDInformation.BlockSize);
-			Debug.WriteLine("NumberOfBlocks: {0}", _flashNAND.NANDInformation.NumberOfBlocks);
-			Debug.WriteLine("NumberOfPlanes: {0}", _flashNAND.NANDInformation.NumberOfPlanes);
-			Debug.WriteLine("PlaneSize: {0} bytes", _flashNAND.NANDInformation.PlaneSize);
-			Debug.WriteLine("FlashSize: {0} MB", _flashNAND.NANDInformation.NumberOfBlocks * _flashNAND.NANDInformation.BlockSize / 1048576);
+			Debug.WriteLine(string.Format("MakerCode: 0x{0:X2}", _flashNAND.NANDInformation.ManufacturerCode));
+			Debug.WriteLine(string.Format("DeviceCode: 0x{0:X2}", _flashNAND.NANDInformation.DeviceCode));
+			Debug.WriteLine(string.Format("PageSize: {0} bytes", _flashNAND.NANDInformation.PageSize));
+			Debug.WriteLine(string.Format("SpareSize: {0} bytes", _flashNAND.NANDInformation.SpareSize));
+			Debug.WriteLine(string.Format("BlockSize: {0} bytes", _flashNAND.NANDInformation.BlockSize));
+			Debug.WriteLine(string.Format("NumberOfBlocks: {0}", _flashNAND.NANDInformation.NumberOfBlocks));
+			Debug.WriteLine(string.Format("NumberOfPlanes: {0}", _flashNAND.NANDInformation.NumberOfPlanes));
+			Debug.WriteLine(string.Format("PlaneSize: {0} bytes", _flashNAND.NANDInformation.PlaneSize));
+			Debug.WriteLine(string.Format("FlashSize: {0} MB", _flashNAND.NANDInformation.NumberOfBlocks * _flashNAND.NANDInformation.BlockSize / 1048576));
 			Debug.WriteLine("------------------------------");
 		}
 
