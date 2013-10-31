@@ -34,7 +34,7 @@ namespace NANDORway.Boards
 			_parent = parent;
 			_buffer = null;
 			_devNotifier = DeviceNotifier.OpenDeviceNotifier();
-			_devNotifier.OnDeviceNotify += new EventHandler<DeviceNotifyEventArgs>(_devNotifier_OnDeviceNotify);
+			_devNotifier.OnDeviceNotify += _devNotifier_OnDeviceNotify;
 		}
 
 		void _devNotifier_OnDeviceNotify(object sender, DeviceNotifyEventArgs e)
@@ -49,8 +49,6 @@ namespace NANDORway.Boards
 				case EventType.DeviceRemoveComplete:
 					_parent.RaiseStatusEvent("Disconnected!");
 					CloseDevice();
-					break;
-				default:
 					break;
 			}
 		}
@@ -78,7 +76,7 @@ namespace NANDORway.Boards
 
 		public void Write(byte data)
 		{
-			Write(new System.Byte[1] { data });
+			Write(new[] { data });
 		}
 
 		public byte[] Read(uint size)
@@ -128,7 +126,6 @@ namespace NANDORway.Boards
 				//if (_parent.RxBytes % (1024 * 128) == 0)
 				//{
 				//   _parent.RaiseProgressEvent(string.Format("Dumping: {0} KB / 16384 KB", _parent.RxBytes / 1024));
-				//   System.Windows.Forms.Application.DoEvents();
 				//}
 			}
 
@@ -165,25 +162,19 @@ namespace NANDORway.Boards
 
 			while (_buffer.Length > _buffer.Position)
 			{
-				if (packetBuffer.Length > _buffer.Length - _buffer.Position)
-				{
-					Array.Resize(ref packetBuffer, MIN_PACKET_SIZE);
-				}
+			    if(packetBuffer.Length > _buffer.Length - _buffer.Position)
+			        Array.Resize(ref packetBuffer, MIN_PACKET_SIZE);
 
-				bytesRead = _buffer.Read(packetBuffer, packetBufferStartIndex, packetBuffer.Length - packetBufferStartIndex);
+			    bytesRead = _buffer.Read(packetBuffer, packetBufferStartIndex, packetBuffer.Length - packetBufferStartIndex);
 				packetBufferStartIndex = 0;
 
-				if ((eCode = _epWriter.Write(packetBuffer, TX_TIMEOUT, out tLength)) != ErrorCode.None)
-				{
-					Debug.Assert(false, "Write error! " + eCode.ToString());
-					break;
-				}
+			    if((eCode = _epWriter.Write(packetBuffer, TX_TIMEOUT, out tLength)) != ErrorCode.None)
+			        Debug.Assert(false, "Write error! " + eCode.ToString());
 
-				//if (packetBuffer.Length == PACKET_SIZE) _parent.TxBytes += packetBuffer.Length;
+			    //if (packetBuffer.Length == PACKET_SIZE) _parent.TxBytes += packetBuffer.Length;
 				//if (_parent.TxBytes % (1024 * 128) == 0)
 				//{
 				//   _parent.RaiseProgressEvent(string.Format("Writing: {0} KB / 16384 KB", _parent.TxBytes / 1024));
-				//   System.Windows.Forms.Application.DoEvents();
 				//}
 			}
 
@@ -205,7 +196,7 @@ namespace NANDORway.Boards
 			// it will have an IUsbDevice interface. If not (WinUSB) the 
 			// variable will be null indicating this is an interface of a 
 			// device.
-			IUsbDevice wholeUsbDevice = _usbDevice as IUsbDevice;
+			var wholeUsbDevice = _usbDevice as IUsbDevice;
 			if (!ReferenceEquals(wholeUsbDevice, null))
 			{
 				// This is a "whole" USB device. Before it can be used, 
@@ -248,14 +239,11 @@ namespace NANDORway.Boards
 					// it will have an IUsbDevice interface. If not (WinUSB) the 
 					// variable will be null indicating this is an interface of a 
 					// device.
-					IUsbDevice wholeUsbDevice = _usbDevice as IUsbDevice;
-					if (!ReferenceEquals(wholeUsbDevice, null))
-					{
-						// Release interface #0.
-						wholeUsbDevice.ReleaseInterface(0);
-					}
+					var wholeUsbDevice = _usbDevice as IUsbDevice;
+				    if(!ReferenceEquals(wholeUsbDevice, null))
+				        wholeUsbDevice.ReleaseInterface(0); // Release interface #0.
 
-					_usbDevice.Close();
+				    _usbDevice.Close();
 					_usbDevice = null;
 				}
 			}

@@ -52,8 +52,8 @@ namespace NANDORway
 
 			textBox1.Text = @"d:\ps3\test.bin";
 
-			this.StatusEvent += new StatusEventHandler(Main_StatusEvent);
-			this.ProgressEvent += new ProgressEventHandler(Main_ProgressEvent);
+			StatusEvent += Main_StatusEvent;
+			ProgressEvent += Main_ProgressEvent;
 
 			cmbNORFlashMode.DataSource = Enum.GetValues(typeof(Flash.NOR.ProgrammingModes));
 			cmbNORFlashMode.SelectedIndex = 0;
@@ -66,12 +66,12 @@ namespace NANDORway
 			_flashNAND = new Flash.NAND(_boardTeensy);
 		}
 
-		void Main_ProgressEvent(object sender, Main.ProgressEventArgs e)
+		void Main_ProgressEvent(object sender, ProgressEventArgs e)
 		{
 			SetStatus2(e.Status);
 		}
 
-		void Main_StatusEvent(object sender, Main.StatusEventArgs e)
+		void Main_StatusEvent(object sender, StatusEventArgs e)
 		{
 			SetStatus(e.Status);
 		}
@@ -106,15 +106,9 @@ namespace NANDORway
 
 		private void btnSelectFile_Click(object sender, EventArgs e)
 		{
-			SaveFileDialog dlgSave = new SaveFileDialog();
+			SaveFileDialog dlgSave = new SaveFileDialog { Title = "Specify Destination Filename", Filter = "Bin files (*.bin)|*.bin|All files (*.*)|*.*", FilterIndex = 1, OverwritePrompt = true };
 
-			dlgSave.Title = "Specify Destination Filename";
-			dlgSave.Filter = "Bin files (*.bin)|*.bin|All files (*.*)|*.*";
-			dlgSave.FilterIndex = 1;
-			dlgSave.OverwritePrompt = true;
-
-			DialogResult r = dlgSave.ShowDialog();
-			if (r == System.Windows.Forms.DialogResult.OK)
+			if (dlgSave.ShowDialog() == DialogResult.OK)
 				textBox1.Text = dlgSave.FileName;
 		}
 
@@ -134,7 +128,7 @@ namespace NANDORway
 
 			try
 			{
-				Stopwatch sw = Stopwatch.StartNew();
+				var sw = Stopwatch.StartNew();
 
 				SetStatus2("Dumping: 0 KB / 16384 KB");
 				
@@ -145,12 +139,11 @@ namespace NANDORway
 				{
 					fs.Write(_flashNOR.ReadSector(i, 0x20000), 0, 0x20000);
 					SetStatus2(string.Format("Dumping: {0} KB / 16384 KB", (i + BLOCK) / 512));
-					System.Windows.Forms.Application.DoEvents();
 				}
 
 				sw.Stop();
-				TimeSpan ts = sw.Elapsed;
-				//TimeSpan ts2 = sw.Elapsed;
+				var ts = sw.Elapsed;
+				//var ts2 = sw.Elapsed;
 				//for (int i = 0; i < 15; i++)
 				//   ts = ts.Add(ts2);
 
@@ -208,7 +201,7 @@ namespace NANDORway
 
 			try
 			{
-				Stopwatch sw = Stopwatch.StartNew();
+				var sw = Stopwatch.StartNew();
 
 				SetStatus2("Writing: 0 KB / 16384 KB");
 
@@ -225,16 +218,12 @@ namespace NANDORway
 					if (!success) break;
 
 					SetStatus2(string.Format("Writing: {0} KB / 16384 KB", (i + BLOCK) / 1024));
-					System.Windows.Forms.Application.DoEvents();
 				}
 
 				sw.Stop();
-				TimeSpan ts = sw.Elapsed;
+				var ts = sw.Elapsed;
 
-				if (success)
-					SetStatus2(string.Format("Writing done. [{0:00}:{1:00}:{2:00} ({3:F2} KB/s)]", ts.Hours, ts.Minutes, ts.Seconds, 0x1000000 / ts.TotalMilliseconds * 1000 / 1024));
-				else
-					SetStatus2("Writing failed!");
+				SetStatus2(success ? string.Format("Writing done. [{0:00}:{1:00}:{2:00} ({3:F2} KB/s)]", ts.Hours, ts.Minutes, ts.Seconds, 0x1000000 / ts.TotalMilliseconds * 1000 / 1024) : "Writing failed!");
 			}
 			catch (Exception ex)
 			{
@@ -265,13 +254,13 @@ namespace NANDORway
 				return;
 			}
 
-			Stopwatch sw = Stopwatch.StartNew();
+			var sw = Stopwatch.StartNew();
 			SetStatus2("Erasing NOR...");
 
 			_flashNOR.EraseChip();
 
 			sw.Stop();
-			TimeSpan ts = sw.Elapsed;
+			var ts = sw.Elapsed;
 
 			SetStatus2(string.Format("Erasechip done. [{0:00}:{1:00}:{2:00}]", ts.Hours, ts.Minutes, ts.Seconds));
 		}
@@ -286,7 +275,7 @@ namespace NANDORway
 
 			try
 			{
-				Stopwatch sw = Stopwatch.StartNew();
+				var sw = Stopwatch.StartNew();
 
 				SetStatus2("Dumping: 0 KB / 16384 KB");
 
@@ -297,11 +286,10 @@ namespace NANDORway
 				{
 					fs.Write(_flashNOR.SpeedTestRead(), 0, (int)BLOCK);
 					SetStatus2(string.Format("Dumping: {0} KB / 16384 KB", i / 1024));
-					System.Windows.Forms.Application.DoEvents();
 				}
 
 				sw.Stop();
-				TimeSpan ts = sw.Elapsed;
+				var ts = sw.Elapsed;
 
 				SetStatus2(string.Format("Dumping done. [{0:00}:{1:00}:{2:00} ({3:F2} KB/s)]", ts.Hours, ts.Minutes, ts.Seconds, SIZE / ts.TotalMilliseconds * 1000 / 1024));
 			}
@@ -328,7 +316,7 @@ namespace NANDORway
 
 			try
 			{
-				Stopwatch sw = Stopwatch.StartNew();
+				var sw = Stopwatch.StartNew();
 
 				SetStatus2(string.Format("Writing: 0 KB / 16384 KB"));
 
@@ -336,12 +324,11 @@ namespace NANDORway
 				for (uint i = 0; i < SIZE; i += BLOCK)
 				{
 					SetStatus2(string.Format("Writing: {0} KB / 16384 KB", i / 1024));
-					System.Windows.Forms.Application.DoEvents();
 					_flashNOR.SpeedTestWrite(data);
 				}
 
 				sw.Stop();
-				TimeSpan ts = sw.Elapsed;
+				var ts = sw.Elapsed;
 
 				SetStatus2(string.Format("SpeedTest done. [{0:00}:{1:00}:{2:00}:{3:0000} ({4:F2} KB/s)]", ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds, SIZE / ts.TotalMilliseconds * 1000 / 1024));
 			}
@@ -380,7 +367,7 @@ namespace NANDORway
 
 			try
 			{
-				Stopwatch sw = Stopwatch.StartNew();
+				var sw = Stopwatch.StartNew();
 
 				fs = new System.IO.FileStream(textBox1.Text, System.IO.FileMode.Create);
 
@@ -391,12 +378,11 @@ namespace NANDORway
 				{
 					fs.Write(_flashNAND.ReadBlock(i, BLOCK_SIZE), 0, (int)BLOCK_SIZE);
 					SetStatus2(string.Format("Dumping: {0} KB / {1} KB", (i + 1) * (BLOCK_SIZE / 1024), BLOCK_SIZE));
-					System.Windows.Forms.Application.DoEvents();
 				}
 
 				sw.Stop();
-				TimeSpan ts = sw.Elapsed;
-				//TimeSpan ts2 = sw.Elapsed;
+				var ts = sw.Elapsed;
+				//var ts2 = sw.Elapsed;
 				//for (int i = 0; i < 256; i++)
 				//   ts = ts.Add(ts2);
 

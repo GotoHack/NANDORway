@@ -14,8 +14,8 @@
 			Application.SetCompatibleTextRenderingDefault(false);
 			AppDomain.CurrentDomain.AssemblyResolve += CurrentDomainAssemblyResolve;
 #if DEBUG
-            var myWriter = new TextWriterTraceListener(Console.Out);
-            Debug.Listeners.Add(myWriter);
+			var myWriter = new TextWriterTraceListener(Console.Out);
+			Debug.Listeners.Add(myWriter);
 #endif
 			Application.Run(new Main());
 		}
