@@ -4,14 +4,16 @@ using System.Diagnostics;
 
 namespace NANDORway
 {
-	public partial class Main : Form
+    using NANDORway.Properties;
+
+    internal sealed partial class Main : Form
 	{
 
 		private LibNANDORway.Boards.IBoard _boardTeensy;
 		private LibNANDORway.Flash.NOR _flashNOR;
         private LibNANDORway.Flash.NAND _flashNAND;
 
-		public Main()
+	    internal Main()
 		{
 			InitializeComponent();
 			Initialize();
@@ -20,6 +22,7 @@ namespace NANDORway
 		private void Initialize()
 		{
 		    SetStatus(!LibNANDORway.LibMain.DeviceConnected ? "Disconnected!" : "Connected!");
+            LibNANDORway.LibMain.ClearAssemblies();
             LibNANDORway.LibMain.ConnectedChanged += (sender, arg) => SetStatus(!arg.Data ? "Disconnected!" : "Connected!");
 		    SetStatus2("");
 
@@ -46,7 +49,7 @@ namespace NANDORway
 			toolStripStatusLabel2.Text = status;
 		}
 
-		private void btnPing_Click(object sender, EventArgs e)
+		private void BtnPingClick(object sender, EventArgs e)
 		{
 			if (_flashNOR.Ping())
 			{
@@ -60,21 +63,17 @@ namespace NANDORway
 			}
 		}
 
-		private void btnNORTristate_Click(object sender, EventArgs e)
+		private void BtnSelectFileClick(object sender, EventArgs e)
 		{
-		}
-
-		private void btnSelectFile_Click(object sender, EventArgs e)
-		{
-			SaveFileDialog dlgSave = new SaveFileDialog { Title = "Specify Destination Filename", Filter = "Bin files (*.bin)|*.bin|All files (*.*)|*.*", FilterIndex = 1, OverwritePrompt = true };
+			var dlgSave = new SaveFileDialog { Title = Resources.SpecifyDestinationFilename, Filter = Resources.BinFilter, FilterIndex = 1, OverwritePrompt = true };
 
 			if (dlgSave.ShowDialog() == DialogResult.OK)
 				textBox1.Text = dlgSave.FileName;
 		}
 
-		private void btnNORDump_Click(object sender, EventArgs e)
+		private void BtnNORDumpClick(object sender, EventArgs e)
 		{
-			const uint BLOCK = 0x10000;
+			const uint block = 0x10000;
 			System.IO.FileStream fs = null;
 
 			_flashNOR.NORInformationRefresh();
@@ -95,10 +94,10 @@ namespace NANDORway
 				fs = new System.IO.FileStream(textBox1.Text, System.IO.FileMode.Create);
 				
 				_flashNOR.RxBytes = 0;
-				for (uint i = 0; i < 0x800000; i += BLOCK)
+				for (uint i = 0; i < 0x800000; i += block)
 				{
 					fs.Write(_flashNOR.ReadSector(i, 0x20000), 0, 0x20000);
-					SetStatus2(string.Format("Dumping: {0} KB / 16384 KB", (i + BLOCK) / 512));
+					SetStatus2(string.Format("Dumping: {0} KB / 16384 KB", (i + block) / 512));
 				}
 
 				sw.Stop();
@@ -109,7 +108,7 @@ namespace NANDORway
 
 				SetStatus2(string.Format("Dumping done. [{0:00}:{1:00}:{2:00} ({3:F2} KB/s)]", ts.Hours, ts.Minutes, ts.Seconds, 0x1000000 / ts.TotalMilliseconds * 1000 / 1024));
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 				Debug.WriteLine("Error.");
 				SetStatus2("Dumping error.");
@@ -121,7 +120,7 @@ namespace NANDORway
 			}
 		}
 
-		private void btnNORFlash_Click(object sender, EventArgs e)
+		private void BtnNORFlashClick(object sender, EventArgs e)
 		{
 			/*
 				n.checkchip()
@@ -147,7 +146,7 @@ namespace NANDORway
 				n.verify(addr, data)
 				print "Done. [%s]"%(datetime.timedelta(seconds=time.time() - tStart))
 			*/
-			const uint BLOCK = 0x20000;
+			const uint block = 0x20000;
 			System.IO.FileStream fs = null;
 
 			_flashNOR.NORInformationRefresh();
@@ -167,17 +166,16 @@ namespace NANDORway
 
 				fs = new System.IO.FileStream(textBox1.Text, System.IO.FileMode.Open);
 
-				bool success = false;
-				byte[] data = new byte[BLOCK];
+				var success = false;
+				var data = new byte[block];
 
-				for (uint i = 0; i < 0x1000000; i += BLOCK)
-				//for (uint i = 0; i < 0x20000; i += BLOCK)
+				for (uint i = 0; i < 0x1000000; i += block)
 				{
-					fs.Read(data, 0, (int)BLOCK);
+					fs.Read(data, 0, (int)block);
                     success = _flashNOR.WriteRange(i, data, (LibNANDORway.Flash.NOR.ProgrammingModes)cmbNORFlashMode.SelectedValue, false);
 					if (!success) break;
 
-					SetStatus2(string.Format("Writing: {0} KB / 16384 KB", (i + BLOCK) / 1024));
+					SetStatus2(string.Format("Writing: {0} KB / 16384 KB", (i + block) / 1024));
 				}
 
 				sw.Stop();
@@ -185,7 +183,7 @@ namespace NANDORway
 
 				SetStatus2(success ? string.Format("Writing done. [{0:00}:{1:00}:{2:00} ({3:F2} KB/s)]", ts.Hours, ts.Minutes, ts.Seconds, 0x1000000 / ts.TotalMilliseconds * 1000 / 1024) : "Writing failed!");
 			}
-			catch (Exception ex)
+			catch
 			{
 				Debug.WriteLine("Error.");
 				SetStatus2("Write error.");
@@ -197,13 +195,13 @@ namespace NANDORway
 			}
 		}
 
-		private void btnNORid_Click(object sender, EventArgs e)
+		private void BtnNoRidClick(object sender, EventArgs e)
 		{
 			_flashNOR.NORInformationRefresh();
 			SetStatus(_flashNOR.NORInformation.ManufacturerName + "/" + _flashNOR.NORInformation.DeviceName);
 		}
 
-		private void btnNOREraseChip_Click(object sender, EventArgs e)
+		private void BtnNOREraseChipClick(object sender, EventArgs e)
 		{
 			_flashNOR.NORInformationRefresh();
 			SetStatus(_flashNOR.NORInformation.ManufacturerName + "/" + _flashNOR.NORInformation.DeviceName);
@@ -225,10 +223,10 @@ namespace NANDORway
 			SetStatus2(string.Format("Erasechip done. [{0:00}:{1:00}:{2:00}]", ts.Hours, ts.Minutes, ts.Seconds));
 		}
 
-		private void btnSpeedTestRead_Click(object sender, EventArgs e)
+		private void BtnSpeedTestReadClick(object sender, EventArgs e)
 		{
-			const uint SIZE = 0x1000000;
-			const uint BLOCK = 0x20000;
+			const uint size = 0x1000000;
+			const uint block = 0x20000;
 
 			System.IO.FileStream fs = null;
 			SetStatus("SpeedTestRead");
@@ -242,18 +240,18 @@ namespace NANDORway
 				fs = new System.IO.FileStream(textBox1.Text, System.IO.FileMode.Create);
 
 				_flashNOR.RxBytes = 0;
-				for (uint i = 0; i < SIZE; i += BLOCK)
+				for (uint i = 0; i < size; i += block)
 				{
-					fs.Write(_flashNOR.SpeedTestRead(), 0, (int)BLOCK);
+					fs.Write(_flashNOR.SpeedTestRead(), 0, (int)block);
 					SetStatus2(string.Format("Dumping: {0} KB / 16384 KB", i / 1024));
 				}
 
 				sw.Stop();
 				var ts = sw.Elapsed;
 
-				SetStatus2(string.Format("Dumping done. [{0:00}:{1:00}:{2:00} ({3:F2} KB/s)]", ts.Hours, ts.Minutes, ts.Seconds, SIZE / ts.TotalMilliseconds * 1000 / 1024));
+				SetStatus2(string.Format("Dumping done. [{0:00}:{1:00}:{2:00} ({3:F2} KB/s)]", ts.Hours, ts.Minutes, ts.Seconds, size / ts.TotalMilliseconds * 1000 / 1024));
 			}
-			catch (Exception ex)
+			catch
 			{
 				Debug.WriteLine("Error.");
 				SetStatus2("SpeedTest error.");
@@ -266,12 +264,12 @@ namespace NANDORway
 		}
 
 		
-		private void btnSpeedTestWrite_Click(object sender, EventArgs e)
+		private void BtnSpeedTestWriteClick(object sender, EventArgs e)
 		{
-			const uint SIZE = 0x1000000;
-			const uint BLOCK = 0x20000;
+			const uint size = 0x1000000;
+			const uint block = 0x20000;
 
-			byte[] data = new byte[BLOCK];
+			var data = new byte[block];
 			SetStatus("SpeedTestWrite");
 
 			try
@@ -281,7 +279,7 @@ namespace NANDORway
 				SetStatus2(string.Format("Writing: 0 KB / 16384 KB"));
 
 				_flashNOR.TxBytes = 0;
-				for (uint i = 0; i < SIZE; i += BLOCK)
+				for (uint i = 0; i < size; i += block)
 				{
 					SetStatus2(string.Format("Writing: {0} KB / 16384 KB", i / 1024));
 					_flashNOR.SpeedTestWrite(data);
@@ -290,16 +288,16 @@ namespace NANDORway
 				sw.Stop();
 				var ts = sw.Elapsed;
 
-				SetStatus2(string.Format("SpeedTest done. [{0:00}:{1:00}:{2:00}:{3:0000} ({4:F2} KB/s)]", ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds, SIZE / ts.TotalMilliseconds * 1000 / 1024));
+				SetStatus2(string.Format("SpeedTest done. [{0:00}:{1:00}:{2:00}:{3:0000} ({4:F2} KB/s)]", ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds, size / ts.TotalMilliseconds * 1000 / 1024));
 			}
-			catch (Exception ex)
+			catch
 			{
 				Debug.WriteLine("Error.");
 				SetStatus2("SpeedTest error.");
 			}
 		}
 
-		private void btnNANDid_Click(object sender, EventArgs e)
+		private void BtnNanDidClick(object sender, EventArgs e)
 		{
             _flashNAND.NANDInformationRefresh((byte)(LibNANDORway.Flash.NAND.NANDSelect)cmbNANDid.SelectedValue);
 
@@ -316,14 +314,14 @@ namespace NANDORway
 			Debug.WriteLine("------------------------------");
 		}
 
-		private void btnNANDDump_Click(object sender, EventArgs e)
+		private void BtnNANDDumpClick(object sender, EventArgs e)
 		{
 			System.IO.FileStream fs = null;
 
 			//_flashNAND.NANDInformationRefresh((byte)(Flash.NAND.NANDSelect)cmbNANDid.SelectedValue);
 
 			//uint BLOCK_SIZE = 131072;
-			uint BLOCK_SIZE = 135168;
+			const uint blockSIZE = 0x21000;
 
 			try
 			{
@@ -336,8 +334,8 @@ namespace NANDORway
 				//for (uint i = 0; i < 4; i++)
 				//for (uint i = 32; i < 33; i++)
 				{
-					fs.Write(_flashNAND.ReadBlock(i, BLOCK_SIZE), 0, (int)BLOCK_SIZE);
-					SetStatus2(string.Format("Dumping: {0} KB / {1} KB", (i + 1) * (BLOCK_SIZE / 1024), BLOCK_SIZE));
+					fs.Write(_flashNAND.ReadBlock(i, blockSIZE), 0, (int)blockSIZE);
+					SetStatus2(string.Format("Dumping: {0} KB / {1} KB", (i + 1) * (blockSIZE / 1024), blockSIZE));
 				}
 
 				sw.Stop();
@@ -346,9 +344,9 @@ namespace NANDORway
 				//for (int i = 0; i < 256; i++)
 				//   ts = ts.Add(ts2);
 
-				SetStatus2(string.Format("Dumping done. [{0:00}:{1:00}:{2:00} ({3:F2} KB/s)]", ts.Hours, ts.Minutes, ts.Seconds, (BLOCK_SIZE * 1024) / ts.TotalMilliseconds * 1000 / 1024));
+				SetStatus2(string.Format("Dumping done. [{0:00}:{1:00}:{2:00} ({3:F2} KB/s)]", ts.Hours, ts.Minutes, ts.Seconds, (blockSIZE * 1024) / ts.TotalMilliseconds * 1000 / 1024));
 			}
-			catch (Exception ex)
+			catch
 			{
 				Debug.WriteLine("Error.");
 				SetStatus2("Dumping error.");
@@ -361,7 +359,7 @@ namespace NANDORway
 
 		}
 
-		private void btnCalcECC_Click(object sender, EventArgs e)
+		private void BtnCalcECCClick(object sender, EventArgs e)
 		{
 			System.IO.FileStream fs0 = null;
 			System.IO.FileStream fs1 = null;
@@ -378,41 +376,37 @@ namespace NANDORway
 				byte[] ecc0 = new byte[16];
 				byte[] ecc1 = new byte[16];
 
-				string s0 = string.Empty;
-				string s1 = string.Empty;
-
-				while (fs0.Position < fs0.Length)
+			    while (fs0.Position < fs0.Length)
 				{
 					fs0.Read(data0, 0, data0.Length);
 					fs1.Read(data1, 0, data1.Length);
 					
-					int i = 0;
-					for (int k = 2112 - 64 + 8 - 1; k < 2112 - 1; k += 14)
+					var i = 0;
+					for (var k = 0x807; k < 0x83f; k += 0xe)
 					{
-						Array.Copy(data0, k + 11, ecc0, i, 4);
-						Array.Copy(data1, k + 11, ecc1, i, 4);
+						Array.Copy(data0, k + 0xb, ecc0, i, 4);
+						Array.Copy(data1, k + 0xb, ecc1, i, 4);
 
 						i += 4;
 					}
 
-                    if (LibNANDORway.Flash.FlashBase.ByteArraysEqual(ecc0, ecc1))
-					{
-						s0 = string.Format("0x{0:x} (orig): ", fs0.Position - 0x40);
-						s1 = string.Format("0x{0:x} (ptch): ", fs0.Position - 0x40);
-						for (i = 0; i < ecc0.Length; i += 4)
-						{
-							s0 += string.Format("{0:x2} {1:x2} {2:x2} {3:x2} : ", ecc0[i], ecc0[i + 1], ecc0[i + 2], ecc0[i + 3]);
-							s1 += string.Format("{0:x2} {1:x2} {2:x2} {3:x2} : ", ecc1[i], ecc1[i + 1], ecc1[i + 2], ecc1[i + 3]);
-						}
+			        if(!LibNANDORway.Flash.FlashBase.ByteArraysEqual(ecc0, ecc1))
+			            continue;
+			        var s0 = string.Format("0x{0:x} (orig): ", fs0.Position - 0x40);
+			        var s1 = string.Format("0x{0:x} (ptch): ", fs1.Position - 0x40);
+			        for (i = 0; i < ecc0.Length; i += 4)
+			        {
+			            s0 += string.Format("{0:x2} {1:x2} {2:x2} {3:x2} : ", ecc0[i], ecc0[i + 1], ecc0[i + 2], ecc0[i + 3]);
+			            s1 += string.Format("{0:x2} {1:x2} {2:x2} {3:x2} : ", ecc1[i], ecc1[i + 1], ecc1[i + 2], ecc1[i + 3]);
+			        }
 
-						s0 = s0.Substring(0, s0.Length - 3);
-						s1 = s1.Substring(0, s1.Length - 3);
-						outfile.WriteLine(s0);
-						outfile.WriteLine(s1);
-						//Debug.WriteLine(s0);
-						//Debug.WriteLine(s1);
-					}
-				}
+			        s0 = s0.Substring(0, s0.Length - 3);
+			        s1 = s1.Substring(0, s1.Length - 3);
+			        outfile.WriteLine(s0);
+			        outfile.WriteLine(s1);
+			        //Debug.WriteLine(s0);
+			        //Debug.WriteLine(s1);
+			    }
 
 		
 				
@@ -425,7 +419,7 @@ namespace NANDORway
 				//}
 				//Debug.WriteLine("-----------");
 			}
-			catch (Exception ex)
+			catch
 			{
 			}
 			finally
@@ -439,7 +433,7 @@ namespace NANDORway
 			}
 		}
 
-		private void cmdGetOOB_Click(object sender, EventArgs e)
+		private void CMDGetOobClick(object sender, EventArgs e)
 		{
 			System.IO.FileStream fs0 = null;
 			System.IO.TextReader blockfile = null;
@@ -451,12 +445,9 @@ namespace NANDORway
 				blockfile = new System.IO.StreamReader(@"D:\PS3\dump_orig\nand1_blocks.txt");
 				outfile = new System.IO.StreamWriter(@"D:\PS3\dump_orig\nand1_oob.txt");
 
-				byte[] oob = new byte[6];
+				var oob = new byte[6];
 
-				string s0 = null;
-				string s1 = string.Empty;
-
-				s0 = blockfile.ReadLine();
+			    var s0 = blockfile.ReadLine();
 				do
 				{
 					fs0.Seek(Convert.ToInt64(s0) * 0x21000 + 0x802, System.IO.SeekOrigin.Begin);
@@ -482,7 +473,7 @@ namespace NANDORway
 
 		}
 
-		private void cmdEmptyBlocks_Click(object sender, EventArgs e)
+		private void CMDEmptyBlocksClick(object sender, EventArgs e)
 		{
 			System.IO.FileStream fs0 = null;
 			System.IO.TextReader blockfile = null;
@@ -506,7 +497,7 @@ namespace NANDORway
 				{
 					fs0.Read(block, 0, block.Length);
 
-					for (int i = 0; i < block.Length; i += (page.Length + spare.Length + 8))
+					for (var i = 0; i < block.Length; i += (page.Length + spare.Length + 8))
 					{
 						Buffer.BlockCopy(block, i, page, 0, page.Length);
 						Buffer.BlockCopy(block, i + page.Length + 8, spare, 0, spare.Length);
@@ -530,10 +521,12 @@ namespace NANDORway
 			{
 				if (fs0 != null)
 					fs0.Close();
+                /*
 				if (blockfile != null)
 					blockfile.Close();
 				if (outfile != null)
 					outfile.Close();
+                           */
 			}
 
 		}
@@ -553,7 +546,7 @@ namespace NANDORway
 		 * For multiplication, a discrete log/exponent table is used, with
 		 * primitive element x (F is a primitive field, so x is primitive).
 		 */
-		const int MODPOLY = 0x409;		/* x^10 + x^3 + 1 in binary */
+		const int Modpoly = 0x409;		/* x^10 + x^3 + 1 in binary */
 
 		/*
 		 * Maps an integer a [0..1022] to a polynomial b = gf_exp[a] in
@@ -561,37 +554,36 @@ namespace NANDORway
 		 * identical copies of this array back-to-back so that we can save
 		 * the mod 1023 operation when doing a GF multiplication.
 		 */
-		UInt16[] gf_exp = new UInt16[1023 + 1023];
+        readonly UInt16[] _gfExp = new UInt16[1023 + 1023];
 
 		/*
 		 * Maps a polynomial b in GF(2^10) mod x^10 + x^3 + 1 to an index
 		 * a = gf_log[b] in [0..1022] such that b = x ^ a.
 		 */
-		UInt16[] gf_log = new UInt16[1024];
+        readonly UInt16[] _gfLog = new UInt16[1024];
 
-		void gf_build_log_exp_table()
+		void GfBuildLogExpTable()
 		{
 			int i;
-			int p_i;
 
-			/*
+		    /*
 			 * p_i = x ^ i
 			 *
 			 * Initialise to 1 for i = 0.
 			 */
-			p_i = 1;
+			var pI = 1;
 
 			for (i = 0; i < 1023; i++) {
-				gf_exp[i] = (UInt16)p_i;
-				gf_exp[i + 1023] = (UInt16)p_i;
-				gf_log[p_i] = (UInt16)i;
+				_gfExp[i] = (UInt16)pI;
+				_gfExp[i + 1023] = (UInt16)pI;
+				_gfLog[pI] = (UInt16)i;
 
 				/*
 				 * p_i = p_i * x
 				 */
-				p_i <<= 1;
-				if ((p_i & (1 << 10)) != 0)
-					p_i ^= MODPOLY;
+				pI <<= 1;
+				if ((pI & (1 << 10)) != 0)
+					pI ^= Modpoly;
 			}
 		}
 
@@ -623,29 +615,28 @@ namespace NANDORway
 		 * expects the ECC to be computed backward, i.e. from the last byte down
 		 * to the first one.
 		 */
-		int tables_initialized = 0;
-		int nand_calculate_ecc_kw(byte[] data, byte[] ecc)
+		int _tablesInitialized;
+		int NANDCalculateECCKw(byte[] data, byte[] ecc)
 		{
-			uint r7, r6, r5, r4, r3, r2, r1, r0;
-			int i;
+		    int i;
 
 
-			if (tables_initialized == 0) {
-				gf_build_log_exp_table();
-				tables_initialized = 1;
+			if (_tablesInitialized == 0) {
+				GfBuildLogExpTable();
+				_tablesInitialized = 1;
 			}
 
 			/*
 			 * Load bytes 504..511 of the data into r.
 			 */
-			r0 = data[504];
-			r1 = data[505];
-			r2 = data[506];
-			r3 = data[507];
-			r4 = data[508];
-			r5 = data[509];
-			r6 = data[510];
-			r7 = data[511];
+			uint r0 = data[0x1f8];
+			uint r1 = data[0x1f9];
+			uint r2 = data[0x1fa];
+			uint r3 = data[0x1fb];
+			uint r4 = data[0x1fc];
+			uint r5 = data[0x1fd];
+			uint r6 = data[0x1fe];
+			uint r7 = data[0x1ff];
 
 			/*
 			 * Shift bytes 503..0 (in that order) into r0, followed
@@ -653,23 +644,21 @@ namespace NANDORway
 			 * generator polynomial in every step.
 			 */
 			for (i = 503; i >= -8; i--) {
-				uint d;
-
-				d = 0;
+			    var d = 0;
 				if (i >= 0)
 					d = data[i];
 
 				if (r7 > 0) {
-					UInt16 gflog = (UInt16)(gf_log[r7]);
+					var gflog = _gfLog[r7];
 
-					r7 = r6 ^ gf_exp[0x21c + gflog];
-					r6 = r5 ^ gf_exp[0x181 + gflog];
-					r5 = r4 ^ gf_exp[0x18e + gflog];
-					r4 = r3 ^ gf_exp[0x25f + gflog];
-					r3 = r2 ^ gf_exp[0x197 + gflog];
-					r2 = r1 ^ gf_exp[0x193 + gflog];
-					r1 = r0 ^ gf_exp[0x237 + gflog];
-					r0 = d ^ gf_exp[0x024 + gflog];
+					r7 = r6 ^ _gfExp[0x21c + gflog];
+					r6 = r5 ^ _gfExp[0x181 + gflog];
+					r5 = r4 ^ _gfExp[0x18e + gflog];
+					r4 = r3 ^ _gfExp[0x25f + gflog];
+					r3 = r2 ^ _gfExp[0x197 + gflog];
+					r2 = r1 ^ _gfExp[0x193 + gflog];
+					r1 = r0 ^ _gfExp[0x237 + gflog];
+					r0 = (uint) (d ^ _gfExp[0x024 + gflog]);
 				} else {
 					r7 = r6;
 					r6 = r5;
@@ -678,7 +667,7 @@ namespace NANDORway
 					r3 = r2;
 					r2 = r1;
 					r1 = r0;
-					r0 = d;
+					r0 = (uint) d;
 				}
 			}
 
@@ -696,7 +685,7 @@ namespace NANDORway
 			return 0;
 		}
 
-        private void getversionbtn_Click(object sender, EventArgs e) {
+        private void GetversionbtnClick(object sender, EventArgs e) {
             var ver = _flashNAND.GetVersion();
             MessageBox.Show(string.Format("NANDORway found with version: {0}.{1} (Build: {2})", ver.Major, ver.Minor, ver.Build));
         }

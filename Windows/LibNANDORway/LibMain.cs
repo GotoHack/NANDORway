@@ -1,7 +1,6 @@
 ﻿namespace LibNANDORway {
     using System;
     using System.Diagnostics;
-    using System.IO;
     using System.Reflection;
 
     public static class LibMain {
@@ -11,8 +10,8 @@
         private static readonly Version Ver = Assembly.GetAssembly(typeof(LibMain)).GetName().Version;
 
         static LibMain() {
+            EmbeddedAssemblyManager.PreLoadAssemblies();
             BaseName = string.Format("{0} v{{0}}.{{1}} (Build: {{2}}) {{3}}", typeof(LibMain).Namespace);
-            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomainAssemblyResolve;
 #if DEBUG
             Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
 #endif
@@ -26,6 +25,10 @@
                 return string.Format(BaseName, Ver.Major, Ver.Minor, Ver.Build, "");
 #endif
             }
+        }
+
+        public static void ClearAssemblies() {
+            EmbeddedAssemblyManager.Release();
         }
 
         public static bool DeviceConnected { get; private set; }
@@ -76,21 +79,6 @@
             var handler = Progress;
             if(handler != null)
                 handler(null, new ProgressEventArg<long, long>(current, total));
-        }
-
-        public static Assembly CurrentDomainAssemblyResolve(object sender, ResolveEventArgs args) {
-            if(string.IsNullOrEmpty(args.Name))
-                throw new Exception("DLL Read Failure (Nothing to load!)");
-            var name = string.Format("{0}.dll", args.Name.Substring(0, args.Name.IndexOf(',')));
-            Debug.WriteLine(string.Format("[{0}] Looking for internal {1}", typeof(LibMain).Namespace, name));
-            using(var stream = Assembly.GetAssembly(typeof(LibMain)).GetManifestResourceStream(string.Format("{0}.{1}", typeof(LibMain).Namespace, name))) {
-                if(stream != null) {
-                    var data = new byte[stream.Length];
-                    stream.Read(data, 0, data.Length);
-                    return Assembly.Load(data);
-                }
-                throw new FileNotFoundException(string.Format("Can't find external nor internal {0}!", name));
-            }
         }
     }
 }

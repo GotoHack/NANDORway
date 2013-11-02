@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="Boards\IBoard.cs" />
     <Compile Include="Boards\Teensy.cs" />
+    <Compile Include="EmbeddedAssemblyManager.cs" />
     <Compile Include="Flash\FlashBase.cs" />
     <Compile Include="Flash\NAND.cs" />
     <Compile Include="Flash\NOR.cs" />

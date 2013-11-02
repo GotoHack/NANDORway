@@ -1,6 +1,6 @@
 ﻿namespace NANDORway
 {
-	partial class Main
+    internal sealed partial class Main
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -70,7 +70,7 @@
             this.btnPing.TabIndex = 3;
             this.btnPing.Text = "Ping";
             this.btnPing.UseVisualStyleBackColor = true;
-            this.btnPing.Click += new System.EventHandler(this.btnPing_Click);
+            this.btnPing.Click += new System.EventHandler(this.BtnPingClick);
             // 
             // statusStrip1
             // 
@@ -103,7 +103,7 @@
             this.btnNORDump.TabIndex = 5;
             this.btnNORDump.Text = "Dump";
             this.btnNORDump.UseVisualStyleBackColor = true;
-            this.btnNORDump.Click += new System.EventHandler(this.btnNORDump_Click);
+            this.btnNORDump.Click += new System.EventHandler(this.BtnNORDumpClick);
             // 
             // btnNORFlash
             // 
@@ -113,7 +113,7 @@
             this.btnNORFlash.TabIndex = 6;
             this.btnNORFlash.Text = "Flash";
             this.btnNORFlash.UseVisualStyleBackColor = true;
-            this.btnNORFlash.Click += new System.EventHandler(this.btnNORFlash_Click);
+            this.btnNORFlash.Click += new System.EventHandler(this.BtnNORFlashClick);
             // 
             // btnNORid
             // 
@@ -123,7 +123,7 @@
             this.btnNORid.TabIndex = 7;
             this.btnNORid.Text = "Read ID";
             this.btnNORid.UseVisualStyleBackColor = true;
-            this.btnNORid.Click += new System.EventHandler(this.btnNORid_Click);
+            this.btnNORid.Click += new System.EventHandler(this.BtnNoRidClick);
             // 
             // btnNOREraseChip
             // 
@@ -133,7 +133,7 @@
             this.btnNOREraseChip.TabIndex = 9;
             this.btnNOREraseChip.Text = "Erase Chip";
             this.btnNOREraseChip.UseVisualStyleBackColor = true;
-            this.btnNOREraseChip.Click += new System.EventHandler(this.btnNOREraseChip_Click);
+            this.btnNOREraseChip.Click += new System.EventHandler(this.BtnNOREraseChipClick);
             // 
             // btnNORTristate
             // 
@@ -143,7 +143,6 @@
             this.btnNORTristate.TabIndex = 10;
             this.btnNORTristate.Text = "Lock / Unlock";
             this.btnNORTristate.UseVisualStyleBackColor = true;
-            this.btnNORTristate.Click += new System.EventHandler(this.btnNORTristate_Click);
             // 
             // textBox1
             // 
@@ -160,7 +159,7 @@
             this.btnSelectFile.TabIndex = 12;
             this.btnSelectFile.Text = "...";
             this.btnSelectFile.UseVisualStyleBackColor = true;
-            this.btnSelectFile.Click += new System.EventHandler(this.btnSelectFile_Click);
+            this.btnSelectFile.Click += new System.EventHandler(this.BtnSelectFileClick);
             // 
             // btnSpeedTestRead
             // 
@@ -170,7 +169,7 @@
             this.btnSpeedTestRead.TabIndex = 13;
             this.btnSpeedTestRead.Text = "ReadSpeedTest";
             this.btnSpeedTestRead.UseVisualStyleBackColor = true;
-            this.btnSpeedTestRead.Click += new System.EventHandler(this.btnSpeedTestRead_Click);
+            this.btnSpeedTestRead.Click += new System.EventHandler(this.BtnSpeedTestReadClick);
             // 
             // btnSpeedTestWrite
             // 
@@ -180,7 +179,7 @@
             this.btnSpeedTestWrite.TabIndex = 14;
             this.btnSpeedTestWrite.Text = "WriteSpeedTest";
             this.btnSpeedTestWrite.UseVisualStyleBackColor = true;
-            this.btnSpeedTestWrite.Click += new System.EventHandler(this.btnSpeedTestWrite_Click);
+            this.btnSpeedTestWrite.Click += new System.EventHandler(this.BtnSpeedTestWriteClick);
             // 
             // tabControl1
             // 
@@ -248,7 +247,7 @@
             this.cmdEmptyBlocks.TabIndex = 19;
             this.cmdEmptyBlocks.Text = "Empty Blocks";
             this.cmdEmptyBlocks.UseVisualStyleBackColor = true;
-            this.cmdEmptyBlocks.Click += new System.EventHandler(this.cmdEmptyBlocks_Click);
+            this.cmdEmptyBlocks.Click += new System.EventHandler(this.CMDEmptyBlocksClick);
             // 
             // cmdGetOOB
             // 
@@ -258,7 +257,7 @@
             this.cmdGetOOB.TabIndex = 18;
             this.cmdGetOOB.Text = "Get OOB";
             this.cmdGetOOB.UseVisualStyleBackColor = true;
-            this.cmdGetOOB.Click += new System.EventHandler(this.cmdGetOOB_Click);
+            this.cmdGetOOB.Click += new System.EventHandler(this.CMDGetOobClick);
             // 
             // btnCalcECC
             // 
@@ -268,7 +267,7 @@
             this.btnCalcECC.TabIndex = 17;
             this.btnCalcECC.Text = "Calc ECC";
             this.btnCalcECC.UseVisualStyleBackColor = true;
-            this.btnCalcECC.Click += new System.EventHandler(this.btnCalcECC_Click);
+            this.btnCalcECC.Click += new System.EventHandler(this.BtnCalcECCClick);
             // 
             // cmbNANDid
             // 
@@ -296,7 +295,7 @@
             this.btnNANDDump.TabIndex = 11;
             this.btnNANDDump.Text = "Dump";
             this.btnNANDDump.UseVisualStyleBackColor = true;
-            this.btnNANDDump.Click += new System.EventHandler(this.btnNANDDump_Click);
+            this.btnNANDDump.Click += new System.EventHandler(this.BtnNANDDumpClick);
             // 
             // btnNANDid
             // 
@@ -306,7 +305,7 @@
             this.btnNANDid.TabIndex = 13;
             this.btnNANDid.Text = "Read ID";
             this.btnNANDid.UseVisualStyleBackColor = true;
-            this.btnNANDid.Click += new System.EventHandler(this.btnNANDid_Click);
+            this.btnNANDid.Click += new System.EventHandler(this.BtnNanDidClick);
             // 
             // btnNANDTristate
             // 
@@ -345,7 +344,7 @@
             this.getversionbtn.TabIndex = 3;
             this.getversionbtn.Text = "GetVersion";
             this.getversionbtn.UseVisualStyleBackColor = true;
-            this.getversionbtn.Click += new System.EventHandler(this.getversionbtn_Click);
+            this.getversionbtn.Click += new System.EventHandler(this.GetversionbtnClick);
             // 
             // Main
             // 

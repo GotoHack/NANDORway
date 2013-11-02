@@ -47,6 +47,8 @@
  *
  */
 
+#include "NANDORway.h"
+
 #if NAND_BUS_TYPE == NAND_BUS_TYPE_GPIO
 #include "nand-gpio.h"
 #else
@@ -117,7 +119,7 @@ int32_t nand_erase(struct nand_driver_data *nfd, const uint64_t block)
 
 /*! \brief Read data from the NAND flash.
  *
- *  This function reads data from the NAND flash at a given block and offset 
+ *  This function reads data from the NAND flash at a given block and offset
  *  into a buffer. The read will be done with or without ECC depending on the
  *  configuration of the NAND driver \ref NAND_ECC_TYPE.
  *
@@ -149,7 +151,7 @@ int32_t nand_read(struct nand_driver_data *nfd, const uint64_t block,
 
 /*! \brief Read data from the NAND flash.
  *
- *  This function reads data from the NAND flash at a given block and offset 
+ *  This function reads data from the NAND flash at a given block and offset
  *  into a buffer. The read will be done raw, without any ECC, even if ECC
  *  is enabled in the NAND driver.
  *

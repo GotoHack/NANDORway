@@ -59,5 +59,23 @@ namespace NANDORway.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bin files (*.bin)|*.bin|All files (*.*)|*.*.
+        /// </summary>
+        internal static string BinFilter {
+            get {
+                return ResourceManager.GetString("BinFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Specify Destination Filename.
+        /// </summary>
+        internal static string SpecifyDestinationFilename {
+            get {
+                return ResourceManager.GetString("SpecifyDestinationFilename", resourceCulture);
+            }
+        }
     }
 }

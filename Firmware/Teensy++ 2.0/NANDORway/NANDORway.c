@@ -20,6 +20,7 @@
 #include "delay_x.h"
 #include "nor.h"
 #include "nand.h"
+#include "NANDORway.h"
 
 enum {
 	CMD_GETVERSION = 0,
@@ -110,7 +111,7 @@ void speedtest_receive(void) {
 
 		i += RX_BUFFER_SIZE;
 	}
-	usbio_set_byte('K', 1);
+	usbio_set_byte(RES_SUCCESS, 1);
 }
 
 // pure usb transmit takes 15secs (1040KB/s) for 16MB
@@ -373,9 +374,8 @@ int main(void)
 						usbio_set_byte(nand0.info.plane_size & 0xFF, 1);
 					}
 					else {
-						for (uint8_t i = 0; i < 23; ++i) {
+						for (uint8_t i = 0; i < 23; ++i)
 							usbio_set_byte(0xFF, 0);
-						}
 						usbio_set_byte(0xFF, 1);
 					}
 					break;
@@ -408,9 +408,8 @@ int main(void)
 						usbio_set_byte(nand1.info.plane_size & 0xFF, 1);
 					}
 					else {
-						for (uint8_t i = 0; i < 23; ++i) {
+						for (uint8_t i = 0; i < 23; ++i)
 							usbio_set_byte(0xFF, 0);
-						}
 						usbio_set_byte(0xFF, 1);
 					}
 					break;

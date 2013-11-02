@@ -1,344 +1,326 @@
-﻿namespace LibNANDORway.Flash
-{
+﻿namespace LibNANDORway.Flash {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using LibNANDORway.Boards;
 
-    public class NOR : FlashBase
-	{
-		private const int WriteRetries = 5;
+    public sealed class NOR : FlashBase {
+        #region ProgrammingModes enum
 
-        public NOR(Boards.IBoard board) : base(board)
-		{
-			NORInformation = new NORInfo();
-		}
+        public enum ProgrammingModes {
+            WordMode = 0,
+            UnlockBypassMode = 1,
+            WriteBufferMode = 2
+        }
 
-		public enum ProgrammingModes
-		{
-			WordMode = 0,
-			UnlockBypassMode = 1,
-			WriteBufferMode = 2
-		}
+        #endregion
 
-		public struct NORInfo
-		{
-			public NORInfo(IList<byte> norID)
-			{
-				Debug.Assert(norID.Count == 8);
+        private const int WriteRetries = 5;
 
-				ManufacturerCode = norID[1];
-				DeviceCode = (uint)norID[3] << 16 | (uint)norID[5] << 8 | norID[7];
-			}
+        public NOR(IBoard board) : base(board) {
+            NORInformation = new NORInfo();
+        }
 
-			public enum ChipTypes
-			{
-				Unknown = 0,
-				SpansionS29Gl128 = 1,
-				SamsungK8P2716Uzc = 2,
-				SamsungK8Q2815Uqb = 3,
-				MacronixMx29Gl128 = 4
-			}
+        public NORInfo NORInformation { get; private set; }
 
-			public readonly byte ManufacturerCode;
-			public readonly uint DeviceCode;
+        private void SetAddress(uint address) {
+            Debug.Assert(address <= 0x7FFFFF);
+            SendCommand(FlashCommand.NORAddressSet);
+            Write(new[] { (byte) (address >> 16), (byte) (address >> 8 & 0xff), (byte) (address & 0xff) });
+        }
 
-			public ChipTypes ChipType
-			{
-				get
-				{
-					switch (ManufacturerCode)
-					{
-						case 0x01:
-							if (DeviceCode == 0x7e2101) return ChipTypes.SpansionS29Gl128;
-							break;
-						case 0xc2:
-							if (DeviceCode == 0x7e2101) return ChipTypes.MacronixMx29Gl128;
-							break;
-						case 0xec:
-							if (DeviceCode == 0x7e6660) return ChipTypes.SamsungK8P2716Uzc;
-							if (DeviceCode == 0x7e0601) return ChipTypes.SamsungK8Q2815Uqb;
-							break;
-						default:
-							return ChipTypes.Unknown;
-					}
-					return ChipTypes.Unknown;
-				}
-			}
+        private void WriteWord(ushort data, bool incrementAddress) {
+            SendCommand(incrementAddress ? FlashCommand.NORAddressIncrementEnable : FlashCommand.NORAddressIncrementDisable);
 
-			public string ManufacturerName
-			{
-				get
-				{
-					switch (ChipType)
-					{
-						case ChipTypes.SpansionS29Gl128:
-							return "Spansion";
-						case ChipTypes.MacronixMx29Gl128:
-							return "Macronix";
-						case ChipTypes.SamsungK8P2716Uzc:
-						case ChipTypes.SamsungK8Q2815Uqb:
-							return "Samsung";
-						default:
-							return "Unknown";
-					}
-				}
-			}
+            SendCommand(FlashCommand.NORWriteWord);
+            Write(new[] { (byte) (data >> 8 & 0xff), (byte) (data & 0xff) });
+        }
 
-			public string DeviceName
-			{
-				get
-				{
-					switch (ChipType)
-					{
-						case ChipTypes.SpansionS29Gl128:
-							return "S29GL128";
-						case ChipTypes.MacronixMx29Gl128:
-							return "MX29GL128";
-						case ChipTypes.SamsungK8P2716Uzc:
-							return "K8P2716UZC";
-						case ChipTypes.SamsungK8Q2815Uqb:
-							return "K8Q2815UQB";
-						default:
-							return "Unknown";
-					}
-				}
-			}
-		}
+        private void WriteAt(uint address, ushort data) {
+            SetAddress(address);
+            WriteWord(data, false);
+        }
 
-		public NORInfo NORInformation { get; private set; }
+        private byte[] GetNORID() {
+            SendCommand(FlashCommand.NORID);
+            return Read(8);
+        }
 
-		private void Address(uint address)
-		{
-			Debug.Assert(address <= 0x7FFFFF);
-			SendCommand(FlashCommand.CMD_NOR_ADDRESS_SET);
-			Write(new[] { (byte)(address >> 16), (byte)(address >> 8 & 0xff), (byte)(address & 0xff) });
-		}
+        public void NORInformationRefresh() {
+            Ping();
+            SendCommand(FlashCommand.IoLock);
+            SendCommand(FlashCommand.NORReset);
 
-		private void WriteWord(ushort data, bool incrementAddress)
-		{
-		    SendCommand(incrementAddress ? FlashCommand.CMD_NOR_ADDRESS_INCREMENT_ENABLE : FlashCommand.CMD_NOR_ADDRESS_INCREMENT_DISABLE);
+            NORInformation = new NORInfo(GetNORID());
+        }
 
-		    SendCommand(FlashCommand.CMD_NOR_WRITE_WORD);
-			Write(new[] { (byte)(data >> 8 & 0xff), (byte)(data & 0xff) });
-		}
+        public byte[] ReadSector(uint offset, uint blockSize) {
+            Debug.Assert((offset & blockSize / 2 - 1) == 0);
 
-		private void WriteAt(uint address, ushort data)
-		{
-			Address(address);
-			WriteWord(data, false);
-		}
+            SetAddress(offset);
 
-		private byte[] GetNORID()
-		{
-			SendCommand(FlashCommand.CMD_NOR_ID);
-			return Read(8);
-		}
+            switch(blockSize) {
+                case 0x1000:
+                    SendCommand(FlashCommand.NORReadBlock4Kb);
+                    break;
+                case 0x2000:
+                    SendCommand(FlashCommand.NORReadBlock8Kb);
+                    break;
+                case 0x10000:
+                    SendCommand(FlashCommand.NORReadBlock64Kb);
+                    break;
+                case 0x20000:
+                    SendCommand(FlashCommand.NORReadBlock128Kb);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("blockSize");
+            }
 
-		public void NORInformationRefresh()
-		{
-			Ping();
-			SendCommand(FlashCommand.CMD_IO_LOCK);
-			SendCommand(FlashCommand.CMD_NOR_RESET);
+            return Read(blockSize);
+        }
 
-			NORInformation = new NORInfo(GetNORID());
-		}
+        public void EraseSector(uint offset) {
+            SendCommand(NORInformation.ChipType == NORInfo.ChipTypes.SamsungK8Q2815Uqb && offset >= 0x400000 ? FlashCommand.NOR2NdDieEnable : FlashCommand.NOR2NdDieDisable);
 
-		public byte[] ReadSector(uint offset, uint blockSize)
-		{
-			Debug.Assert((offset & (blockSize / 2 - 1)) == 0);
-
-			Address(offset);
-
-			switch (blockSize)
-			{
-				case 0x1000:
-					SendCommand(FlashCommand.CMD_NOR_READ_BLOCK_4KB);
-					break;
-				case 0x2000:
-					SendCommand(FlashCommand.CMD_NOR_READ_BLOCK_8KB);
-					break;
-				case 0x10000:
-					SendCommand(FlashCommand.CMD_NOR_READ_BLOCK_64KB);
-					break;
-				case 0x20000:
-					SendCommand(FlashCommand.CMD_NOR_READ_BLOCK_128KB);
-					break;
-				default:
-					return new byte[] { };
-			}
-
-			return Read(blockSize);
-		}
-
-		public void EraseSector(uint offset)
-		{
-            SendCommand(NORInformation.ChipType == NORInfo.ChipTypes.SamsungK8Q2815Uqb && offset >= 0x400000 ? FlashCommand.CMD_NOR_2ND_DIE_ENABLE : FlashCommand.CMD_NOR_2ND_DIE_DISABLE);
-			
-			Address(offset);
-			SendCommand(FlashCommand.CMD_NOR_ERASE_SECTOR);
+            SetAddress(offset);
+            SendCommand(FlashCommand.NOREraseSector);
             Debug.Assert(Ping());
-		}
+        }
 
-		public void EraseChip()
-		{
-			SendCommand(FlashCommand.CMD_NOR_RESET);
+        public void EraseChip() {
+            SendCommand(FlashCommand.NORReset);
 
-			SendCommand(FlashCommand.CMD_NOR_2ND_DIE_DISABLE);
-			SendCommand(FlashCommand.CMD_NOR_ERASE_CHIP);
-			Ping();
+            SendCommand(FlashCommand.NOR2NdDieDisable);
+            SendCommand(FlashCommand.NOREraseChip);
+            Ping();
 
-		    if(NORInformation.ChipType != NORInfo.ChipTypes.SamsungK8Q2815Uqb)
-		        return;
-		    SendCommand(FlashCommand.CMD_NOR_2ND_DIE_ENABLE);
-		    SendCommand(FlashCommand.CMD_NOR_ERASE_CHIP);
-		    Ping();
-		}
+            if(NORInformation.ChipType != NORInfo.ChipTypes.SamsungK8Q2815Uqb)
+                return;
+            SendCommand(FlashCommand.NOR2NdDieEnable);
+            SendCommand(FlashCommand.NOREraseChip);
+            Ping();
+        }
 
-		private uint GetSectorSize(uint address)
-		{
-			const uint s8Kb = 0x2000;
-			const uint s64Kb = 0x10000;
-			const uint s128Kb = 0x20000;
+        private uint GetSectorSize(uint address) {
+            const uint s8Kb = 0x2000;
+            const uint s64Kb = 0x10000;
+            const uint s128Kb = 0x20000;
 
-			//sector/block sizes for Samsung K8Q2815UQB
-			if (NORInformation.ChipType == NORInfo.ChipTypes.SamsungK8Q2815Uqb) {
-			    if (address < 0x10000)
-					return s8Kb;
-			    if (address >= 0x10000 && address < 0x7f0000)
-			        return s64Kb;
-			    if (address >= 0x7f0000 && address < 0x810000)
-			        return s8Kb;
-			    if (address >= 0x810000 && address < 0xff0000)
-			        return s64Kb;
-			    return s8Kb;
-			}
+            //sector/block sizes for Samsung K8Q2815UQB
+            if(NORInformation.ChipType == NORInfo.ChipTypes.SamsungK8Q2815Uqb) {
+                if(address < 0x10000)
+                    return s8Kb;
+                if(address >= 0x10000 && address < 0x7f0000)
+                    return s64Kb;
+                if(address >= 0x7f0000 && address < 0x810000)
+                    return s8Kb;
+                if(address >= 0x810000 && address < 0xff0000)
+                    return s64Kb;
+                return s8Kb;
+            }
 
-		    //sector/block size for all other NORs
-			return s128Kb;
-		}
+            //sector/block size for all other NORs
+            return s128Kb;
+        }
 
-		private bool Program(uint address, byte[] data, ProgrammingModes prgMode)
-		{
-			uint blockSIZE;
-			
-			var sSize = GetSectorSize(address * 2);
-			Debug.Assert(data.Length == sSize);
-			Debug.Assert((address & sSize / 2 - 1) == 0);
+        private bool Program(uint address, byte[] data, ProgrammingModes prgMode) {
+            uint blockSIZE;
 
-			SendCommand(NORInformation.ChipType == NORInfo.ChipTypes.SamsungK8Q2815Uqb && address >= 0x400000 ? FlashCommand.CMD_NOR_2ND_DIE_ENABLE : FlashCommand.CMD_NOR_2ND_DIE_DISABLE);
+            var sSize = GetSectorSize(address * 2);
+            Debug.Assert(data.Length == sSize);
+            Debug.Assert((address & sSize / 2 - 1) == 0);
 
-			FlashCommand flashCommand;
-			switch (prgMode)
-			{
-				case ProgrammingModes.WordMode:
-					blockSIZE = 0x2000; // 8KB blocks
-					flashCommand = FlashCommand.CMD_NOR_WRITE_BLOCK_WORD;
-					break;
-				case ProgrammingModes.UnlockBypassMode:
-					blockSIZE = 0x2000; // 8KB blocks
-					flashCommand = FlashCommand.CMD_NOR_WRITE_BLOCK_UBM;
-					break;
-				case ProgrammingModes.WriteBufferMode:
-					blockSIZE = 0x8000; // 32KB blocks
-					flashCommand = FlashCommand.CMD_NOR_WRITE_BLOCK_WBP;
-					break;
-				default:
-					return false;
-			}
+            SendCommand(NORInformation.ChipType == NORInfo.ChipTypes.SamsungK8Q2815Uqb && address >= 0x400000 ? FlashCommand.NOR2NdDieEnable : FlashCommand.NOR2NdDieDisable);
 
-		    var oData = ReadSector(address, sSize);
-			if (ByteArraysEqual(oData, data))
-                return true;
-				
-			if (!ByteArrayHasSameValues(oData, 0xff))
-				EraseSector(address);
-
-			for (uint i = 0; i < sSize; i += blockSIZE)
-			{
-				var retries = WriteRetries;
-				while (retries != 0)
-				{
-					Address(address+(i/2));
-					SendCommand(flashCommand);
-					Flush();
-					WriteBlock(ByteArrayCopy(data, i, blockSIZE));
-
-					// read write status byte
-					// 'K' = okay, 'T' = timeout error when writing, 'R' = Teensy receive buffer timeout, 'V' = Verification error
-					var res = Read();
-				    if(res == 75)
-				        break;
-
-				    SendCommand(FlashCommand.CMD_NOR_RESET);
-				    Ping();
-
-				    retries -= 1;
-                    Debug.WriteLine(string.Format("({0}. Retry) {1}", WriteRetries - retries, res == 84 ? "RY/BY timeout error while writing!" : string.Format("Received unknown error! (Got 0x{0:X})", res)));
-				} //end while
-
-			    if(retries != 0)
-			        continue;
-			    Debug.WriteLine("Flashing failed");
-			    return false;
-			} //end for
-			return true;
-		}
-
-		public bool WriteRange(uint address, byte[] data, ProgrammingModes prgMode, bool doVerify)
-		{
-			if (data == null || data.Length == 0)
-				return false;
-
-			var dataLength = data.Length;
-			var start = address;
-
-			var sSize = GetSectorSize(address);
-			var dataBlock = new byte[sSize];
-
-			while (dataLength >= sSize)
-			{
-				Buffer.BlockCopy(data, (int)(address - start), dataBlock, 0, (int)sSize);
-				if (!Program(address / 2, dataBlock, prgMode))
+            FlashCommand flashCommand;
+            switch(prgMode) {
+                case ProgrammingModes.WordMode:
+                    blockSIZE = 0x2000; // 8KB blocks
+                    flashCommand = FlashCommand.NORWriteBlockWord;
+                    break;
+                case ProgrammingModes.UnlockBypassMode:
+                    blockSIZE = 0x2000; // 8KB blocks
+                    flashCommand = FlashCommand.NORWriteBlockUbm;
+                    break;
+                case ProgrammingModes.WriteBufferMode:
+                    blockSIZE = 0x8000; // 32KB blocks
+                    flashCommand = FlashCommand.NORWriteBlockWbp;
+                    break;
+                default:
                     return false;
-				address += sSize;
-				dataLength -= (int)sSize;
-				sSize = GetSectorSize(address);
-				if (dataBlock.Length != sSize)
-					Array.Resize(ref dataBlock, (int)sSize);
-			}
-		    return doVerify && Verify(start, data) || !doVerify;
-		}
+            }
 
-		public bool Verify(uint address, byte[] data)
-		{
-			const uint sectorSIZE = 0x20000; // 128KB blocks
-			var start = address;
+            var oData = ReadSector(address, sSize);
+            if(ByteArraysEqual(oData, data))
+                return true;
 
-			LibMain.UpdateStatus("Verifying... sector) 0x{0:X}", address);
+            if(!ByteArrayHasSameValues(oData, 0xff))
+                EraseSector(address);
 
-		    var tempData = new byte[sectorSIZE];
+            for(uint i = 0; i < sSize; i += blockSIZE) {
+                var retries = WriteRetries;
+                while(retries != 0) {
+                    SetAddress(address + (i / 2));
+                    SendCommand(flashCommand);
+                    Flush();
+                    WriteBlock(ByteArrayCopy(data, i, blockSIZE));
 
-			for (uint i = 0; i < data.Length; i += sectorSIZE)
-			{
-				address = start + i;
-				var oData = ReadSector(address / 2, sectorSIZE);
-				Debug.WriteLine(string.Format("{0} KB / {1} KB", (i + sectorSIZE) / 1024, data.Length / 1024));
+                    // read write status byte
+                    // 'K' = okay, 'T' = timeout error when writing, 'R' = Teensy receive buffer timeout, 'V' = Verification error
+                    var res = Read();
+                    if(res == 75)
+                        break;
 
-				Buffer.BlockCopy(data, (int)i, tempData, 0, (int)sectorSIZE);
-				if (ByteArraysEqual(oData, tempData))
-					continue;
+                    SendCommand(FlashCommand.NORReset);
+                    Ping();
+
+                    retries -= 1;
+                    Debug.WriteLine(string.Format("({0}. Retry) {1}", WriteRetries - retries, res == 84 ? "RY/BY timeout error while writing!" : string.Format("Received unknown error! (Got 0x{0:X})", res)));
+                } //end while
+
+                if(retries != 0)
+                    continue;
+                Debug.WriteLine("Flashing failed");
+                return false;
+            } //end for
+            return true;
+        }
+
+        public bool WriteRange(uint address, byte[] data, ProgrammingModes prgMode, bool doVerify) {
+            if(data == null || data.Length == 0)
+                return false;
+
+            var dataLength = data.Length;
+            var start = address;
+
+            var sSize = GetSectorSize(address);
+            var dataBlock = new byte[sSize];
+
+            while(dataLength >= sSize) {
+                Buffer.BlockCopy(data, (int) (address - start), dataBlock, 0, (int) sSize);
+                if(!Program(address / 2, dataBlock, prgMode))
+                    return false;
+                address += sSize;
+                dataLength -= (int) sSize;
+                sSize = GetSectorSize(address);
+                if(dataBlock.Length != sSize)
+                    Array.Resize(ref dataBlock, (int) sSize);
+            }
+            return doVerify && Verify(start, data) || !doVerify;
+        }
+
+        public bool Verify(uint address, byte[] data) {
+            const uint sectorSIZE = 0x20000; // 128KB blocks
+            var start = address;
+
+            LibMain.UpdateStatus("Verifying... sector) 0x{0:X}", address);
+
+            var tempData = new byte[sectorSIZE];
+
+            for(uint i = 0; i < data.Length; i += sectorSIZE) {
+                address = start + i;
+                var oData = ReadSector(address / 2, sectorSIZE);
+                Debug.WriteLine(string.Format("{0} KB / {1} KB", (i + sectorSIZE) / 1024, data.Length / 1024));
+
+                Buffer.BlockCopy(data, (int) i, tempData, 0, (int) sectorSIZE);
+                if(ByteArraysEqual(oData, tempData))
+                    continue;
 
                 LibMain.UpdateStatus("Verification failed! Please repeat write command!");
 
-			    return false;
-			}
-		    return true;
-		}
+                return false;
+            }
+            return true;
+        }
 
-	}
+        #region Nested type: NORInfo
+
+        public struct NORInfo {
+            #region ChipTypes enum
+
+            public enum ChipTypes {
+                Unknown = 0,
+                SpansionS29Gl128 = 1,
+                SamsungK8P2716Uzc = 2,
+                SamsungK8Q2815Uqb = 3,
+                MacronixMx29Gl128 = 4
+            }
+
+            #endregion
+
+            public readonly uint DeviceCode;
+            public readonly byte ManufacturerCode;
+
+            internal NORInfo(IList<byte> norID) {
+                Debug.Assert(norID.Count == 8);
+
+                ManufacturerCode = norID[1];
+                DeviceCode = (uint) norID[3] << 16 | (uint) norID[5] << 8 | norID[7];
+            }
+
+            public ChipTypes ChipType {
+                get {
+                    switch(ManufacturerCode) {
+                        case 0x01:
+                            if(DeviceCode == 0x7e2101)
+                                return ChipTypes.SpansionS29Gl128;
+                            break;
+                        case 0xc2:
+                            if(DeviceCode == 0x7e2101)
+                                return ChipTypes.MacronixMx29Gl128;
+                            break;
+                        case 0xec:
+                            if(DeviceCode == 0x7e6660)
+                                return ChipTypes.SamsungK8P2716Uzc;
+                            if(DeviceCode == 0x7e0601)
+                                return ChipTypes.SamsungK8Q2815Uqb;
+                            break;
+                        default:
+                            return ChipTypes.Unknown;
+                    }
+                    return ChipTypes.Unknown;
+                }
+            }
+
+            public string ManufacturerName {
+                get {
+                    switch(ChipType) {
+                        case ChipTypes.SpansionS29Gl128:
+                            return "Spansion";
+                        case ChipTypes.MacronixMx29Gl128:
+                            return "Macronix";
+                        case ChipTypes.SamsungK8P2716Uzc:
+                        case ChipTypes.SamsungK8Q2815Uqb:
+                            return "Samsung";
+                        default:
+                            return "Unknown";
+                    }
+                }
+            }
+
+            public string DeviceName {
+                get {
+                    switch(ChipType) {
+                        case ChipTypes.SpansionS29Gl128:
+                            return "S29GL128";
+                        case ChipTypes.MacronixMx29Gl128:
+                            return "MX29GL128";
+                        case ChipTypes.SamsungK8P2716Uzc:
+                            return "K8P2716UZC";
+                        case ChipTypes.SamsungK8Q2815Uqb:
+                            return "K8Q2815UQB";
+                        default:
+                            return "Unknown";
+                    }
+                }
+            }
+        }
+
+        #endregion
+    }
 }
 
-	/*
+/*
 	class NORFlasher(TeensySerial):
 		def closedevice(self):
 			self.close()

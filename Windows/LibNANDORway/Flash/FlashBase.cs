@@ -39,14 +39,14 @@
         }
 
         public bool Ping() {
-            SendCommand(FlashCommand.CMD_PING);
+            SendCommand(FlashCommand.Ping);
             var data = Read(2);
 
-            return ByteArraysEqual(data, new byte[] { 0x42, 0xbd });
+            return data.Length == 2 && data[0] == 0x42 && data[1] == 0xBD;
         }
 
         public Version GetVersion() {
-            SendCommand(FlashCommand.CMD_GETVERSION);
+            SendCommand(FlashCommand.Getversion);
             var ret = Read(3);
             return new Version(ret[0], ret[1], ret[2]);
         }
@@ -56,7 +56,7 @@
         }
 
         public byte[] SpeedTestRead() {
-            SendCommand(FlashCommand.CMD_SPEEDTEST_READ);
+            SendCommand(FlashCommand.SpeedtestRead);
             return Read(0x20000);
         }
 
@@ -69,15 +69,15 @@
             var tempData = new byte[blockSIZE];
             for(uint i = 0; i < sectorSIZE; i += blockSIZE) {
                 Buffer.BlockCopy(data, (int) i, tempData, 0, (int) blockSIZE);
-                SendCommand(FlashCommand.CMD_SPEEDTEST_WRITE);
+                SendCommand(FlashCommand.SpeedtestWrite);
                 Flush();
                 WriteBlock(tempData);
 
                 // read write status byte
                 // 'K' = okay, 'T' = timeout error when writing, 'R' = Teensy receive buffer timeout
-                var res = Read();
-                if(res != 75)
-                    Debug.WriteLine(string.Format("Error: {0:H}", res));
+                var res = (FlashResponse)Read();
+                if(res != FlashResponse.Success)
+                    Debug.WriteLine(string.Format("Error: {0}", res));
             }
         }
 
@@ -118,46 +118,52 @@
 
         public void EnterBootLoader()
         {
-            SendCommand(FlashCommand.CMD_BOOTLOADER);
+            SendCommand(FlashCommand.Bootloader);
             Flush();
         }
 
         #region Nested type: FlashCommand
 
         protected enum FlashCommand {
-            CMD_GETVERSION = 0,
-            CMD_PING,
-            CMD_BOOTLOADER,
-            CMD_SPEEDTEST_READ,
-            CMD_SPEEDTEST_WRITE,
-            CMD_IO_LOCK,
-            CMD_IO_RELEASE,
-            CMD_NOR_ID,
-            CMD_NOR_RESET,
-            CMD_NOR_ERASE_SECTOR,
-            CMD_NOR_ERASE_CHIP,
-            CMD_NOR_ADDRESS_SET,
-            CMD_NOR_ADDRESS_INCREMENT,
-            CMD_NOR_ADDRESS_INCREMENT_ENABLE,
-            CMD_NOR_ADDRESS_INCREMENT_DISABLE,
-            CMD_NOR_2ND_DIE_ENABLE,
-            CMD_NOR_2ND_DIE_DISABLE,
-            CMD_NOR_READ_WORD,
-            CMD_NOR_READ_BLOCK_4KB,
-            CMD_NOR_READ_BLOCK_8KB,
-            CMD_NOR_READ_BLOCK_64KB,
-            CMD_NOR_READ_BLOCK_128KB,
-            CMD_NOR_WRITE_WORD,
-            CMD_NOR_WRITE_BLOCK_WORD,
-            CMD_NOR_WRITE_BLOCK_UBM,
-            CMD_NOR_WRITE_BLOCK_WBP,
-            CMD_NAND_ID,
-            CMD_NAND_ID_SET,
-            CMD_NAND_BLOCK_SET,
-            CMD_NAND_READ_BLOCK_ECC,
-            CMD_NAND_READ_BLOCK_RAW,
+            Getversion = 0,
+            Ping,
+            Bootloader,
+            SpeedtestRead,
+            SpeedtestWrite,
+            IoLock,
+            IoRelease,
+            NORID,
+            NORReset,
+            NOREraseSector,
+            NOREraseChip,
+            NORAddressSet,
+            NORAddressIncrement,
+            NORAddressIncrementEnable,
+            NORAddressIncrementDisable,
+            NOR2NdDieEnable,
+            NOR2NdDieDisable,
+            NORReadWord,
+            NORReadBlock4Kb,
+            NORReadBlock8Kb,
+            NORReadBlock64Kb,
+            NORReadBlock128Kb,
+            NORWriteWord,
+            NORWriteBlockWord,
+            NORWriteBlockUbm,
+            NORWriteBlockWbp,
+            NANDID,
+            NANDIDSet,
+            NANDBlockSet,
+            NANDReadBlockECC,
+            NANDReadBlockRaw,
         }
 
         #endregion
+
+        protected enum FlashResponse : byte {
+            Success = 0,
+            Error,
+            Timeout
+        }
     }
 }

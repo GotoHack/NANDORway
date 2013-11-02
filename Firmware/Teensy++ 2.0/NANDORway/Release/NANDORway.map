@@ -55,6 +55,7 @@ Common symbol       size              file
 _rx_buffer_ix       0x1               nand-gpio.o
 USB_IsInitialized   0x1               LUFA/Drivers/USB/Core/USBTask.o
 cmd_t               0x1               NANDORway.o
+response_t          0x1               nand.o
 _tx_buffer_ix       0x1               nand-gpio.o
 USB_DeviceState     0x1               LUFA/Drivers/USB/Core/USBTask.o
 _tx_buffer          0x40              nand-gpio.o
@@ -416,6 +417,7 @@ Discarded input sections
                 0x00000000       0x52 nand.o
  .text.nand_write_raw
                 0x00000000       0x52 nand.o
+ COMMON         0x00000000        0x1 nand.o
  .text          0x00000000        0x0 nor.o
  .bss           0x00000000        0x0 nor.o
  .text          0x00000000        0x0 NANDORway.o
@@ -836,7 +838,7 @@ LOAD c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000     0x6bfc
+.text           0x00000000     0x6bf4
  *(.vectors)
  .vectors       0x00000000       0x98 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr51/crtusb1286.o
                 0x00000000                __vector_default
@@ -1044,65 +1046,65 @@ LOAD c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr
                 0x0000290c      0x9b6 nor.o
                 0x0000290c                nor_write_word
  .text.nor_write_block
-                0x000032c2      0x80e nor.o
+                0x000032c2      0x808 nor.o
                 0x000032c2                nor_write_block
  .text.speedtest_receive
-                0x00003ad0      0x276 NANDORway.o
-                0x00003ad0                speedtest_receive
+                0x00003aca      0x274 NANDORway.o
+                0x00003aca                speedtest_receive
  .text.nand_initports
-                0x00003d46       0xc0 NANDORway.o
-                0x00003d46                nand_initports
+                0x00003d3e       0xc0 NANDORway.o
+                0x00003d3e                nand_initports
  .text.SetupHardware
-                0x00003e06       0x36 NANDORway.o
-                0x00003e06                SetupHardware
+                0x00003dfe       0x36 NANDORway.o
+                0x00003dfe                SetupHardware
  .text.startup.main
-                0x00003e3c     0x2b42 NANDORway.o
-                0x00003e3c                main
+                0x00003e34     0x2b42 NANDORway.o
+                0x00003e34                main
  .text.EVENT_USB_Device_ConfigurationChanged
-                0x0000697e       0x14 NANDORway.o
-                0x0000697e                EVENT_USB_Device_ConfigurationChanged
+                0x00006976       0x14 NANDORway.o
+                0x00006976                EVENT_USB_Device_ConfigurationChanged
  .text.libgcc.div
-                0x00006992       0x44 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_udivmodsi4.o)
-                0x00006992                __udivmodsi4
- .text.libgcc   0x000069d6        0xc c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_tablejump.o)
-                0x000069d6                __tablejump2__
-                0x000069da                __tablejump__
+                0x0000698a       0x44 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_udivmodsi4.o)
+                0x0000698a                __udivmodsi4
+ .text.libgcc   0x000069ce        0xc c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_tablejump.o)
+                0x000069ce                __tablejump2__
+                0x000069d2                __tablejump__
  .text.libgcc.mul
-                0x000069e2       0x10 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_mulshisi3.o)
-                0x000069e2                __mulshisi3
-                0x000069e8                __mulohisi3
+                0x000069da       0x10 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_mulshisi3.o)
+                0x000069da                __mulshisi3
+                0x000069e0                __mulohisi3
  .text.libgcc.div
-                0x000069f2       0x1c c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_udivdi3.o)
-                0x000069f2                __umoddi3
-                0x000069f6                __udivdi3
-                0x000069f8                __udivdi3_umoddi3
+                0x000069ea       0x1c c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_udivdi3.o)
+                0x000069ea                __umoddi3
+                0x000069ee                __udivdi3
+                0x000069f0                __udivdi3_umoddi3
  .text.libgcc.mul
-                0x00006a0e       0xae c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_muldi3.o)
-                0x00006a0e                __muldi3
+                0x00006a06       0xae c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_muldi3.o)
+                0x00006a06                __muldi3
  .text.libgcc.div
-                0x00006abc       0xa2 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_udivmod64.o)
-                0x00006abc                __udivmod64
+                0x00006ab4       0xa2 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_udivmod64.o)
+                0x00006ab4                __udivmod64
  .text.libgcc.builtins
-                0x00006b5e       0x1e c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_ashldi3.o)
-                0x00006b5e                __ashldi3
+                0x00006b56       0x1e c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_ashldi3.o)
+                0x00006b56                __ashldi3
  .text.libgcc.builtins
-                0x00006b7c       0x1e c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_lshrdi3.o)
-                0x00006b7c                __lshrdi3
- .text.libgcc   0x00006b9a       0x18 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_adddi3_s8.o)
-                0x00006b9a                __adddi3_s8
- .text.libgcc   0x00006bb2       0x18 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_cmpdi2_s8.o)
-                0x00006bb2                __cmpdi2_s8
+                0x00006b74       0x1e c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_lshrdi3.o)
+                0x00006b74                __lshrdi3
+ .text.libgcc   0x00006b92       0x18 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_adddi3_s8.o)
+                0x00006b92                __adddi3_s8
+ .text.libgcc   0x00006baa       0x18 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_cmpdi2_s8.o)
+                0x00006baa                __cmpdi2_s8
  .text.libgcc.mul
-                0x00006bca       0x18 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_umulhisi3.o)
-                0x00006bca                __umulhisi3
+                0x00006bc2       0x18 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_umulhisi3.o)
+                0x00006bc2                __umulhisi3
  .text.libgcc.mul
-                0x00006be2       0x16 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_muluhisi3.o)
-                0x00006be2                __muluhisi3
-                0x00006bf8                . = ALIGN (0x2)
+                0x00006bda       0x16 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_muluhisi3.o)
+                0x00006bda                __muluhisi3
+                0x00006bf0                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x00006bf8        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_exit.o)
-                0x00006bf8                _exit
-                0x00006bf8                exit
+ .fini9         0x00006bf0        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_exit.o)
+                0x00006bf0                _exit
+                0x00006bf0                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -1121,11 +1123,11 @@ LOAD c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x00006bf8        0x4 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_exit.o)
+ .fini0         0x00006bf0        0x4 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/avr51\libgcc.a(_exit.o)
  *(.fini0)
-                0x00006bfc                _etext = .
+                0x00006bf4                _etext = .
 
-.data           0x00800100       0xe2 load address 0x00006bfc
+.data           0x00800100       0xe2 load address 0x00006bf4
                 0x00800100                PROVIDE (__data_start, .)
  *(.data)
  .data          0x00800100        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.7.2/../../../../avr/lib/avr51/crtusb1286.o
@@ -1269,8 +1271,8 @@ LOAD c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.1002/avr
                 0x00800237                _rx_buffer
                 0x00800277                _rx_buffer_size
                 0x00800279                PROVIDE (__bss_end, .)
-                0x00006bfc                __data_load_start = LOADADDR (.data)
-                0x00006cde                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x00006bf4                __data_load_start = LOADADDR (.data)
+                0x00006cd6                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x00800279        0x0
                 0x00800279                PROVIDE (__noinit_start, .)
