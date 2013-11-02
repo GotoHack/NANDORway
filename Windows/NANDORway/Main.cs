@@ -6,38 +6,10 @@ namespace NANDORway
 {
 	public partial class Main : Form
 	{
-		public class StatusEventArgs
-		{
-			public StatusEventArgs(string status) { Status = status; }
-			public string Status { get; private set; }
-		}
-		public class ProgressEventArgs
-		{
-			public ProgressEventArgs(string status) { Status = status; }
-			public string Status { get; private set; }
-		}
 
-		public event StatusEventHandler StatusEvent;
-		public event ProgressEventHandler ProgressEvent;
-
-		public delegate void StatusEventHandler(object sender, StatusEventArgs e);
-		public delegate void ProgressEventHandler(object sender, ProgressEventArgs e);
-
-		public void RaiseStatusEvent(string status)
-		{
-			if (StatusEvent != null)
-				StatusEvent(this, new StatusEventArgs(status));
-		}
-
-		public void RaiseProgressEvent(string status)
-		{
-			if (ProgressEvent != null)
-				ProgressEvent(this, new ProgressEventArgs(status));
-		}
-
-		private Boards.Teensy _boardTeensy;
-		private Flash.NOR _flashNOR;
-		private Flash.NAND _flashNAND;
+		private LibNANDORway.Boards.IBoard _boardTeensy;
+		private LibNANDORway.Flash.NOR _flashNOR;
+        private LibNANDORway.Flash.NAND _flashNAND;
 
 		public Main()
 		{
@@ -47,33 +19,20 @@ namespace NANDORway
 
 		private void Initialize()
 		{
-			SetStatus("Disconnected!");
-			SetStatus2("");
+		    SetStatus(!LibNANDORway.LibMain.DeviceConnected ? "Disconnected!" : "Connected!");
+		    SetStatus2("");
 
 			textBox1.Text = @"d:\ps3\test.bin";
 
-			StatusEvent += Main_StatusEvent;
-			ProgressEvent += Main_ProgressEvent;
-
-			cmbNORFlashMode.DataSource = Enum.GetValues(typeof(Flash.NOR.ProgrammingModes));
+            cmbNORFlashMode.DataSource = Enum.GetValues(typeof(LibNANDORway.Flash.NOR.ProgrammingModes));
 			cmbNORFlashMode.SelectedIndex = 0;
 
-			cmbNANDid.DataSource = Enum.GetValues(typeof(Flash.NAND.NANDSelect));
+            cmbNANDid.DataSource = Enum.GetValues(typeof(LibNANDORway.Flash.NAND.NANDSelect));
 			cmbNANDid.SelectedIndex = 0;
 
-			_boardTeensy = new Boards.Teensy(this);
-			_flashNOR = new Flash.NOR(_boardTeensy);
-			_flashNAND = new Flash.NAND(_boardTeensy);
-		}
-
-		void Main_ProgressEvent(object sender, ProgressEventArgs e)
-		{
-			SetStatus2(e.Status);
-		}
-
-		void Main_StatusEvent(object sender, StatusEventArgs e)
-		{
-			SetStatus(e.Status);
+            _boardTeensy = new LibNANDORway.Boards.Teensy(LibNANDORway.LibMain.PID, LibNANDORway.LibMain.VID);
+            _flashNOR = new LibNANDORway.Flash.NOR(_boardTeensy);
+            _flashNAND = new LibNANDORway.Flash.NAND(_boardTeensy);
 		}
 
 		private void SetStatus(string status)
@@ -193,7 +152,7 @@ namespace NANDORway
 			_flashNOR.NORInformationRefresh();
 			SetStatus(_flashNOR.NORInformation.ManufacturerName + "/" + _flashNOR.NORInformation.DeviceName);
 
-			if (_flashNOR.NORInformation.ChipType == Flash.NOR.NORInfo.ChipTypes.Unknown)
+            if (_flashNOR.NORInformation.ChipType == LibNANDORway.Flash.NOR.NORInfo.ChipTypes.Unknown)
 			{
 				SetStatus2("Unknown flash type. Write aborted..");
 				return;
@@ -214,7 +173,7 @@ namespace NANDORway
 				//for (uint i = 0; i < 0x20000; i += BLOCK)
 				{
 					fs.Read(data, 0, (int)BLOCK);
-					success = _flashNOR.WriteRange(i, data, (Flash.NOR.ProgrammingModes)cmbNORFlashMode.SelectedValue, false);
+                    success = _flashNOR.WriteRange(i, data, (LibNANDORway.Flash.NOR.ProgrammingModes)cmbNORFlashMode.SelectedValue, false);
 					if (!success) break;
 
 					SetStatus2(string.Format("Writing: {0} KB / 16384 KB", (i + BLOCK) / 1024));
@@ -248,7 +207,7 @@ namespace NANDORway
 			_flashNOR.NORInformationRefresh();
 			SetStatus(_flashNOR.NORInformation.ManufacturerName + "/" + _flashNOR.NORInformation.DeviceName);
 
-			if (_flashNOR.NORInformation.ChipType == Flash.NOR.NORInfo.ChipTypes.Unknown)
+            if (_flashNOR.NORInformation.ChipType == LibNANDORway.Flash.NOR.NORInfo.ChipTypes.Unknown)
 			{
 				SetStatus2("Unknown flash type. Erase aborted..");
 				return;
@@ -341,7 +300,7 @@ namespace NANDORway
 
 		private void btnNANDid_Click(object sender, EventArgs e)
 		{
-			_flashNAND.NANDInformationRefresh((byte)(Flash.NAND.NANDSelect)cmbNANDid.SelectedValue);
+            _flashNAND.NANDInformationRefresh((byte)(LibNANDORway.Flash.NAND.NANDSelect)cmbNANDid.SelectedValue);
 
 			Debug.WriteLine("------------------------------");
 			Debug.WriteLine(string.Format("MakerCode: 0x{0:X2}", _flashNAND.NANDInformation.ManufacturerCode));
@@ -434,8 +393,8 @@ namespace NANDORway
 
 						i += 4;
 					}
-					
-					if (Flash.FlashBase.ByteArraysEqual(ecc0, ecc1))
+
+                    if (LibNANDORway.Flash.FlashBase.ByteArraysEqual(ecc0, ecc1))
 					{
 						s0 = string.Format("0x{0:x} (orig): ", fs0.Position - 0x40);
 						s1 = string.Format("0x{0:x} (ptch): ", fs0.Position - 0x40);
@@ -536,7 +495,7 @@ namespace NANDORway
 
 				byte[] block = new byte[0x21000];
 				byte[] page = new byte[0x800];
-				byte[] spare = new byte[0x40 - 8];
+				byte[] spare = new byte[0x38];
 				byte[] ecc = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00,
 								 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00,
 								 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00,
@@ -551,9 +510,9 @@ namespace NANDORway
 						Buffer.BlockCopy(block, i, page, 0, page.Length);
 						Buffer.BlockCopy(block, i + page.Length + 8, spare, 0, spare.Length);
 
-						if (Flash.FlashBase.ByteArrayHasSameValues(page, 0xFF))
+                        if (LibNANDORway.Flash.FlashBase.ByteArrayHasSameValues(page, 0xFF))
 						{
-							if (!Flash.FlashBase.ByteArraysEqual(spare, ecc))
+                            if (!LibNANDORway.Flash.FlashBase.ByteArraysEqual(spare, ecc))
 							{
 								Debug.WriteLine(string.Format("Block at 0x{0:X8} is all 0xFF!", fs0.Position - block.Length));
 								break;

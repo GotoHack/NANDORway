@@ -1,11 +1,11 @@
-﻿using System.Diagnostics;
-
-namespace NANDORway.Flash
+﻿namespace LibNANDORway.Flash
 {
-	class NAND : FlashBase
+    using System.Collections.Generic;
+    using System.Diagnostics;
+
+    public class NAND : FlashBase
 	{
-		public NAND(Boards.Teensy board)
-			: base(board)
+        public NAND(Boards.IBoard board) : base(board)
 		{
 			NANDInformation = new NANDInfo();
 		}
@@ -19,18 +19,18 @@ namespace NANDORway.Flash
 
 		public struct NANDInfo
 		{
-			public NANDInfo(byte[] nandID)
+			public NANDInfo(IList<byte> nandID)
 			{
-				Debug.Assert(nandID.Length == 24);
+				Debug.Assert(nandID.Count == 0x18);
 
 				ManufacturerCode = nandID[0];
 				DeviceCode = nandID[1];
-				PageSize = ((uint)nandID[2] << 24) | ((uint)nandID[3] << 16) | ((uint)nandID[4] << 8) | (uint)nandID[5];
+				PageSize = (uint)nandID[2] << 24 | (uint)nandID[3] << 16 | (uint)nandID[4] << 8 | nandID[5];
 				SpareSize = nandID[6];
-				BlockSize = ((uint)nandID[7] << 24) | ((uint)nandID[8] << 16) | ((uint)nandID[9] << 8) | (uint)nandID[10];
-				NumberOfBlocks = ((uint)nandID[11] << 24) | ((uint)nandID[12] << 16) | ((uint)nandID[13] << 8) | (uint)nandID[14];
+				BlockSize = (uint)nandID[7] << 24 | (uint)nandID[8] << 16 | (uint)nandID[9] << 8 | nandID[10];
+				NumberOfBlocks = (uint)nandID[11] << 24 | (uint)nandID[12] << 16 | (uint)nandID[13] << 8 | nandID[14];
 				NumberOfPlanes = nandID[15];
-				PlaneSize = ((uint)nandID[16] << 56) | ((uint)nandID[17] << 48) | ((uint)nandID[18] << 40) | ((uint)nandID[19] << 32) | ((uint)nandID[20] << 24) | ((uint)nandID[21] << 16) | ((uint)nandID[22] << 8) | (uint)nandID[23];
+				PlaneSize = (uint)nandID[16] << 56 | (uint)nandID[17] << 48 | (uint)nandID[18] << 40 | (uint)nandID[19] << 32 | (uint)nandID[20] << 24 | (uint)nandID[21] << 16 | (uint)nandID[22] << 8 | nandID[23];
 			}
 
 			//public enum ChipTypes
@@ -116,12 +116,12 @@ namespace NANDORway.Flash
 
 		public NANDInfo NANDInformation { get; private set; }
 
-		private byte[] GetNAND_ID(byte nandID)
+		private byte[] GetNANDID(byte nandID)
 		{
 			SendCommand(FlashCommand.CMD_NAND_ID_SET);
 			Write(nandID);
 			SendCommand(FlashCommand.CMD_NAND_ID);
-			return Read(24);
+			return Read(0x18);
 		}
 
 		public void NANDInformationRefresh(byte nandID)
@@ -129,13 +129,13 @@ namespace NANDORway.Flash
 			Ping();
 			SendCommand(FlashCommand.CMD_IO_LOCK);
 
-			NANDInformation = new NANDInfo(GetNAND_ID(nandID));
+			NANDInformation = new NANDInfo(GetNANDID(nandID));
 		}
 
 		public byte[] ReadBlock(uint block, uint size)
 		{
 			SendCommand(FlashCommand.CMD_NAND_BLOCK_SET);
-			Write(new byte[] { (byte)(block >> 8), (byte)(block & 0xFF) });
+			Write(new[] { (byte)(block >> 8), (byte)(block & 0xFF) });
 			SendCommand(FlashCommand.CMD_NAND_READ_BLOCK_RAW);
 
 			return Read(size);
