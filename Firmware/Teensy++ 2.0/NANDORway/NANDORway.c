@@ -1,11 +1,15 @@
 /************************************************************************
- NANDORway.c (v1.0 beta) - Teensy++ 2.0 PS3/Xbox/Wii Flasher 
+ NANDORway.c (v1.0 beta) - Teensy++ 2.0 PS3/Xbox/Wii Flasher
 
  Copyright (C) 2013  judges@eEcho.com
 
  This code is licensed to you under the terms of the GNU GPL, version 2;
  see file COPYING or http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 *************************************************************************/
+
+#define NANDORWAY_MAJOR_VERSION 1
+#define NANDORWAY_MINOR_VERSION 0
+#define NANDORWAY_BUILD_VERSION 1
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -18,7 +22,8 @@
 #include "nand.h"
 
 enum {
-	CMD_PING = 0,
+	CMD_GETVERSION = 0,
+	CMD_PING,
 	CMD_BOOTLOADER,
 	CMD_SPEEDTEST_READ,
 	CMD_SPEEDTEST_WRITE,
@@ -57,7 +62,7 @@ enum {
 	//.gpio_io_ddr = &NAND0_IO_DDR, .gpio_io_pin = &NAND0_IO_PIN, .gpio_io_port = &NAND0_IO_PORT
 //};
 struct nand_driver_data nand0 = {
-	.info.t_adl = 100, .info.t_alh = 0, .info.t_als = 0, .info.t_rc = 0, .info.t_wh = 0, .info.t_wp = 0, 
+	.info.t_adl = 100, .info.t_alh = 0, .info.t_als = 0, .info.t_rc = 0, .info.t_wh = 0, .info.t_wp = 0,
 	.gpio_ale = NAND_CONT_ALE, .gpio_ce = NAND_CONT_CE, .gpio_cle = NAND_CONT_CLE, .gpio_rb = NAND_CONT_RB, .gpio_re = NAND_CONT_RE, .gpio_we = NAND_CONT_WE, .gpio_wp = NAND_CONT_WP,
 	.gpio_cont_ddr = &NAND0_CONT_DDR, .gpio_cont_pin = &NAND0_CONT_PIN, .gpio_cont_port = &NAND0_CONT_PORT,
 	.gpio_io_ddr = &NAND0_IO_DDR, .gpio_io_pin = &NAND0_IO_PIN, .gpio_io_port = &NAND0_IO_PORT
@@ -90,22 +95,21 @@ void bootloader(void) {
 void speedtest_receive(void) {
 	uint8_t k, byte;
 	uint16_t i = 0;
-	
+
 	/* Select the OUT stream endpoint */
 	Endpoint_SelectEndpoint(OUT_EP);
 
 	while (i < NOR_BSS_32) {
 		/* Check if the current endpoint can be read */
 		while (!Endpoint_IsOUTReceived()) USB_USBTask();
-			
-		for (k = 0; k < RX_BUFFER_SIZE; ++k) {
+
+		for (k = 0; k < RX_BUFFER_SIZE; ++k)
 			byte = Endpoint_Read_8();
-		}
-		
+
 		Endpoint_ClearOUT();
 
 		i += RX_BUFFER_SIZE;
-	}	
+	}
 	usbio_set_byte('K', 1);
 }
 
@@ -113,7 +117,7 @@ void speedtest_receive(void) {
 void speedtest_send(void) {
 	uint8_t k;
 	uint32_t i = 0;
-	
+
 	/* Select the IN stream endpoint */
 	Endpoint_SelectEndpoint(IN_EP);
 
@@ -126,7 +130,7 @@ void speedtest_send(void) {
 		}
 
 		Endpoint_ClearIN();
-		
+
 		i += TX_BUFFER_SIZE;
 	}
 }
@@ -155,7 +159,7 @@ int32_t init_nand(struct nand_driver_data *nand) {
 		//return -1;
 	//}
 
-	return 1;	
+	return 1;
 }
 
 void nand_initports(void) {
@@ -214,7 +218,7 @@ void SetupHardware(void) {
 	//PRR0 = 0xFF;
 	//PRR1 = 0x7F;
 	//ACSR = 0x80;
-	
+
 	//set all i/o lines to input
 	nor_releaseports();
 
@@ -233,7 +237,7 @@ int main(void)
 	// Initialize the USB, and then wait for the host to set configuration.
 	// If the Teensy is powered without a PC connected to the USB port,
 	// this will wait forever.
-	while (USB_DeviceState != DEVICE_STATE_Configured)  /* wait */ 
+	while (USB_DeviceState != DEVICE_STATE_Configured)  /* wait */
 		USB_USBTask();
 
 	//configure all i/o lines (and set tristate=low)
@@ -245,18 +249,23 @@ int main(void)
 	_delay_ms(1000);
 
 	usbio_initbuffers();
-	
+
 	int16_t command = -1;
 	uint8_t nand_id = 0;
 	uint16_t nand_block = 0;
-	
+
 	while (1) {
 		USB_USBTask();
 		while (USB_DeviceState == DEVICE_STATE_Configured) { // is user still connected?
 			command = usbio_get_byte();
 			if (command == -1) continue;
-			
+
 			switch (command) {
+			case CMD_GETVERSION:
+				usbio_set_byte(NANDORWAY_MAJOR_VERSION, 0);
+				usbio_set_byte(NANDORWAY_MINOR_VERSION, 0);
+				usbio_set_byte(NANDORWAY_BUILD_VERSION, 1);
+				break;
 			case CMD_PING:
 				usbio_set_byte(0x42, 0);
 				usbio_set_byte(0xbd, 1);
@@ -407,7 +416,7 @@ int main(void)
 					break;
 				default:
 					break;
-				}				
+				}
 				break;
 			case CMD_NAND_ID_SET:
 				nand_id = usbio_get_byte();
@@ -425,9 +434,9 @@ int main(void)
 					break;
 				default:
 					break;
-				}				
+				}
 
-				
+
 //				for (uint32_t offset = 0; offset < (nand0.info.block_size + (nand0.info.pages_per_block * nand0.info.oob->size)); offset += nand0.info.page_size + nand0.info.oob->size) {
 
 					/*for (uint16_t buffer_ix = 0; buffer_ix < nand0.info.page_size + nand0.info.oob->size; buffer_ix += TX_BUFFER_SIZE) {
@@ -463,7 +472,7 @@ int main(void)
 			default:
 				break;
 			}
-		}		
+		}
 	}
 }
 

@@ -45,6 +45,12 @@
             return ByteArraysEqual(data, new byte[] { 0x42, 0xbd });
         }
 
+        public Version GetVersion() {
+            SendCommand(FlashCommand.CMD_GETVERSION);
+            var ret = Read(3);
+            return new Version(ret[0], ret[1], ret[2]);
+        }
+
         protected void SendCommand(FlashCommand command) {
             Write((byte) command);
         }
@@ -119,7 +125,8 @@
         #region Nested type: FlashCommand
 
         protected enum FlashCommand {
-            CMD_PING = 0,
+            CMD_GETVERSION = 0,
+            CMD_PING,
             CMD_BOOTLOADER,
             CMD_SPEEDTEST_READ,
             CMD_SPEEDTEST_WRITE,

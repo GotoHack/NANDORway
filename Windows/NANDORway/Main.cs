@@ -20,6 +20,7 @@ namespace NANDORway
 		private void Initialize()
 		{
 		    SetStatus(!LibNANDORway.LibMain.DeviceConnected ? "Disconnected!" : "Connected!");
+            LibNANDORway.LibMain.ConnectedChanged += (sender, arg) => SetStatus(!arg.Data ? "Disconnected!" : "Connected!");
 		    SetStatus2("");
 
 			textBox1.Text = @"d:\ps3\test.bin";
@@ -694,6 +695,11 @@ namespace NANDORway
 
 			return 0;
 		}
+
+        private void getversionbtn_Click(object sender, EventArgs e) {
+            var ver = _flashNAND.GetVersion();
+            MessageBox.Show(string.Format("NANDORway found with version: {0}.{1} (Build: {2})", ver.Major, ver.Minor, ver.Build));
+        }
 
 	}
 }

@@ -25,7 +25,7 @@
         private UsbEndpointWriter _epWriter;
         private UsbDevice _usbDevice;
 
-        public Teensy(int vid, int pid) {
+        public Teensy(int pid, int vid) {
             _vid = vid;
             _pid = pid;
             _usbFinder = new UsbDeviceFinder(_vid, _pid);
@@ -92,8 +92,8 @@
 
                 int tLength;
                 var eCode = _epReader.Read(packetBuffer, RxTimeout, out tLength);
-                Debug.Assert(eCode != ErrorCode.None, string.Format("Read error! {0}", eCode));
-                Debug.Assert(tLength <= 0, "Nothing received!");
+                Debug.Assert(eCode == ErrorCode.None, string.Format("Read error! {0}", eCode));
+                Debug.Assert(tLength > 0, "Nothing received!");
                 Buffer.BlockCopy(packetBuffer, 0, tempBuffer, index, size - index >= packetSize ? packetSize : (int) size - index);
                 index += size - index >= packetSize ? packetSize : (int) size - index;
             }
@@ -133,7 +133,7 @@
                 int tLength;
 
                 var eCode = _epWriter.Write(packetBuffer, TxTimeout, out tLength);
-                Debug.Assert(eCode != ErrorCode.None, string.Format("Write error! {0}", eCode));
+                Debug.Assert(eCode == ErrorCode.None, string.Format("Write error! {0}", eCode));
 
                 //if (packetBuffer.Length == PACKET_SIZE) _parent.TxBytes += packetBuffer.Length;
                 //if (_parent.TxBytes % (1024 * 128) == 0)
